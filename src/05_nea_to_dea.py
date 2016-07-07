@@ -1,8 +1,6 @@
 from collections import deque
 from functools import reduce
 from graphviz import Digraph
-# from pprint import pprint as print
-
 
 class NEA:
 
@@ -54,7 +52,7 @@ class NEA:
         f.view()
         # return str(f.pipe(), encoding='utf-8')
 
-    def generate_ilias(self):
+    def _generate_ilias(self):
         table = self.to_dea()
 
         aufgabe = ''' Aufgabentext\n\n'''
@@ -69,14 +67,17 @@ class NEA:
             aufgabe += tr.format(''.join(td.format(','.join(sorted(s))) for s in row))
         aufgabe += '</table>'
 
-        print(aufgabe.replace('"', r'\"'))
+        yield(aufgabe.replace('"', r'\"'))
 
-        print("{:>25}{:>25}{:>25}".format("delta", "a", "b"))
+        yield("{:>25}{:>25}{:>25}".format("delta", "a", "b"))
         for row in table:
-            print("{:>25}{:>25}{:>25}".format(*map(', '.join, (sorted(s) for s in row))))
+            yield("{:>25}{:>25}{:>25}".format(*map(', '.join, (sorted(s) for s in row))))
+
+    def generate_ilias(self):
+        return ''.join(self._generate_ilias())
 
 
-
+# Define one Automaton
 def delta(state, char):
     return {
         ('s0', 'a'): {'s0', 's1'},
@@ -95,7 +96,15 @@ def delta(state, char):
 states = ["s{}".format(i) for i in range(4)]
 F = ["s3"]
 
+# create
 N = NEA(states, "ab", delta, 's0', F)
-N.to_dea()
-# N.graph_output()
-N.generate_ilias()
+
+### END OF SCRIPT ##############################################################
+meta = {
+    "type"      : "GAP",
+    "title"     : "NEA to DEA",
+    "author"    : "Jan Maximilian Michal",
+    "gapLength" : 10,
+    "question"  : N.generate_ilias(),
+    "solution"  : "TODO",
+}

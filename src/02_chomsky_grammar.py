@@ -41,8 +41,8 @@ def parse(grammer):
 
 P, T, N = parse(delta)
 
-print(('\n'.join(map(str, P))))
-print()
+# print(('\n'.join(map(str, P))))
+# print()
 
 letters_to_kill = {p.left for p in P if not p.right}
 new_P = set() | P
@@ -56,23 +56,33 @@ for p in P:
             new_P |= {rule(p.left, r.format(*prod).replace("0", ""))}
 
 P = {p for p in new_P if p.right}
-print(('\n'.join(map(str, P))))
-print()
+# print(('\n'.join(map(str, P))))
+# print()
 
 for t in T:
     P |= {rule("T_" + t, t)}
 
-print(T)
+# print(T)
 
 new_P = set() | P
 for p in P:
     p.right = ["T_" + p if p in T else p for p in p.right]
 
 P = new_P
-print(('\n'.join(map(str, P))))
-print()
+# print(('\n'.join(map(str, P))))
+# print()
 
 new_P = set() | P
 for p in P:
     if len(p.right) > 2:
         pass
+
+### END OF SCRIPT ##############################################################
+meta = {
+    "type"      : "GAP",
+    "title"     : "Grammatik in Chomsky Normalform umwandeln",
+    "author"    : "Jan Maximilian Michal",
+    "gapLength" : 10,
+    "question"  : "Empty",
+    "solution"  : "TODO",
+}

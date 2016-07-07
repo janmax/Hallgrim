@@ -1,4 +1,3 @@
-from DFA import *
 from itertools import product
 from graphviz import Digraph
 
@@ -141,6 +140,14 @@ F = ["s2"]
 F2 = ["s0", "s3", "s4", "s6"]
 
 A = Automaton(states2, "ab", delta2, "s0", F2)
-A.minimize()
 
-print(A.generate_ilias())
+
+### END OF SCRIPT ##############################################################
+meta = {
+    "type"      : "GAP",
+    "title"     : "Minimieren eines deterministischen Automaten",
+    "author"    : "Jan Maximilian Michal",
+    "gapLength" : 10,
+    "question"  : A.generate_ilias(),
+    "solution"  : "TODO",
+}
