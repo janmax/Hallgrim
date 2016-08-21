@@ -1,5 +1,6 @@
 from itertools import product
 
+
 delta = """
     S := AB | ABA
     A := aA | a
@@ -23,7 +24,7 @@ class rule:
 
 
 def parse(grammer):
-    grammer = grammer.strip()
+    grammer   = grammer.strip()
     terminals = set()
     non_terms = set()
     rules     = set()
