@@ -10,12 +10,18 @@ import os
 import sys
 
 # local import
-import hallgrim.IliasXMLCreator.multi
+from hallgrim.IliasXMLCreator import multi, single
 import hallgrim.parser
 from hallgrim.messages import *
 
 def filename_to_module(name):
     return name.rstrip('.py').replace('/', '.')
+
+def type_selector(type):
+    if 'multiple' in type:
+        return multi
+    if 'single' in type:
+        return single
 
 def parseme():
     parser = argparse.ArgumentParser()
@@ -34,7 +40,6 @@ def parseme():
     args = parser.parse_args()
     return args.out, args.input
 
-
 def main():
     output, script_name = parseme()
     script = importlib.import_module(filename_to_module(script_name))
@@ -49,7 +54,7 @@ def main():
     }
 
     output = os.path.join('output', script.meta['title']) + '.xml' if not output else output
-    hallgrim.IliasXMLCreator.multi.convert_and_print(data, output)
+    type_selector(script.meta['type']).convert_and_print(data, output)
     info('Processed "{}" and wrote xml to "{}".'.format(script_name, output))
 
 if __name__ == '__main__':

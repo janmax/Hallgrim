@@ -125,7 +125,7 @@ def itemfeedback(count):
 ##########################################################################
 
 
-def create_xml_tree(description, question_text, author, title, maxattempts, shuffle, questions):
+def create_xml_tree(type, description, question_text, author, title, maxattempts, shuffle, questions):
     root = et.Element('questestinterop')
     tree = et.ElementTree(root)
     item = et.Element('item', attrib={
@@ -136,7 +136,7 @@ def create_xml_tree(description, question_text, author, title, maxattempts, shuf
 
     item.append(simple_elemet('description', text=description))
     item.append(simple_elemet('duration', text='P0Y0M0DT0H30M0S'))
-    item.append(itemmetadata('MULTIPLE CHOICE QUESTION', author))
+    item.append(itemmetadata(type, author))
     item.append(presentation(title, question_text, questions, shuffle))
     item.append(resprocessing(questions))
     for i, _ in enumerate(questions):
@@ -147,5 +147,5 @@ def create_xml_tree(description, question_text, author, title, maxattempts, shuf
 
 
 def convert_and_print(data, output):
-    tree = create_xml_tree(**data)
+    tree = create_xml_tree('MULTIPLE CHOICE QUESTION', **data)
     tree.write(output, encoding="utf-8", xml_declaration=True)
