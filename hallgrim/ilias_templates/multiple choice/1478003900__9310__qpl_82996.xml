@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Test
+  SYSTEM 'http://www.ilias.uni-koeln.de/download/dtd/ilias_co.dtd'>
+<!--Export of ILIAS Test Questionpool 82996 of installation .-->
+<ContentObject Type="Questionpool_Test">
+    <MetaData>
+        <General Structure="Hierarchical">
+            <Identifier Catalog="ILIAS" Entry="il_9310_qpl_82996"/>
+            <Title Language="de">Aufgabentypen aus ILIAS</Title>
+            <Language Language="de"/>
+            <Description Language="de">Eine Sammlung von Prototypen, um sie automatisch generieren zu können.</Description>
+            <Keyword Language="de"/>
+        </General>
+    </MetaData>
+    <Settings>
+        <ShowTaxonomies>0</ShowTaxonomies>
+        <NavTaxonomy>0</NavTaxonomy>
+        <SkillService>0</SkillService>
+    </Settings>
+    <PageObject>
+        <PageContent>
+            <Question QRef="il_9310_qst_1662595"/>
+        </PageContent>
+    </PageObject>
+</ContentObject>
