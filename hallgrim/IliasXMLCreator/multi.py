@@ -1,147 +1,99 @@
 import xml.etree.ElementTree as et
 
+from hallgrim.IliasXMLCreator.xmlBuildingBlocks import *
 
-def simple_elemet(name, text=None, attrib={}):
-    if not text:
-        return et.Element(name, attrib=attrib)
-    node = et.Element(name, attrib=attrib)
-    node.text = text
-    return node
+class MultipleChoiceQuestion:
+    """docstring for MultipleChoiceQuestion"""
+    def __init__(self, type, description, question_text, author, title, maxattempts, questions, shuffle=True):
+        self.type               = type
+        self.description        = description
+        self.question_text      = question_text
+        self.author             = author
+        self.title              = title
+        self.maxattempts        = maxattempts
+        self.shuffle            = shuffle
+        self.questions          = questions
 
+        self.itemmetadata       = self.itemmetadata(feedback_setting=1)
+        self.presentation       = self.presentation()
+        self.resprocessing      = self.resprocessing()
+        self.xml_representation = self.create_item()
 
-def qtimetadatafield(label, entry):
-    root = et.Element('qtimetadatafield')
-    root.append(simple_elemet('fieldlabel', text=label))
-    root.append(simple_elemet('fieldentry', text=entry))
-    return root
+    def __call__(self):
+        return self.xml_representation
 
+    def is_single(self):
+        return self.type == 'SINGLE CHOICE QUESTION'
 
-def itemmetadata(type, author, feedback_setting=1):
-    subroot = et.Element('qtimetadata')
-    subroot.append(qtimetadatafield('ILIAS_VERSION', '5.1.8 2016-08-03'))
-    subroot.append(qtimetadatafield('QUESTIONTYPE', type))
-    subroot.append(qtimetadatafield('AUTHOR', author))
-    subroot.append(qtimetadatafield('additional_cont_edit_mode', 'default'))
-    subroot.append(qtimetadatafield('externalId', '99.99'))
-    subroot.append(qtimetadatafield('thumb_size', None))
-    subroot.append(qtimetadatafield('feedback_setting', str(feedback_setting)))
-    root = et.Element('itemmetadata')
-    root.append(subroot)
-    return root
+    def itemmetadata(self, feedback_setting=1):
+        subroot = et.Element('qtimetadata')
+        subroot.append(qtimetadatafield('ILIAS_VERSION', '5.1.8 2016-08-03'))
+        subroot.append(qtimetadatafield('QUESTIONTYPE', self.type))
+        subroot.append(qtimetadatafield('AUTHOR',  self.author))
+        subroot.append(qtimetadatafield('additional_cont_edit_mode', 'default'))
+        subroot.append(qtimetadatafield('externalId', '99.99'))
+        subroot.append(qtimetadatafield('thumb_size', None))
+        subroot.append(qtimetadatafield('feedback_setting', str(feedback_setting)))
+        root = et.Element('itemmetadata')
+        root.append(subroot)
+        return root
 
-##########################################################################
-def material(content):
-    material = et.Element('material')
-    material.append(simple_elemet(
-        'mattext',
-        text=content,
-        attrib={'texttype': 'text/xhtml'}
-    ))
-    return material
+    ############################################################################
+    def presentation(self):
+        root = et.Element('presentation', attrib={'label': self.title})
+        flow = et.Element('flow')
+        response_lid = et.Element('response_lid', attrib={
+            'ident': 'MCMR',
+            'rcardinality': 'Multiple' if not self.is_single() else 'Single'
+        })
+        render_choice = et.Element(
+            'render_choice', attrib={'shuffle': 'Yes' if self.shuffle else 'No'})
+        for i, (answer, _, _) in enumerate(self.questions):
+            render_choice.append(response_label(answer, i))
 
+        root.append(flow)
+        flow.append(material(self.question_text))
+        flow.append(response_lid)
+        response_lid.append(render_choice)
+        return root
 
-def response_label(content, count):
-    response_label = et.Element('response_label', attrib={'ident': str(count)})
-    response_label.append(material(content))
-    return response_label
+    ############################################################################
+    def resprocessing(self):
+        root = et.Element('resprocessing')
+        outcomes = et.Element('outcomes')
+        outcomes.append(simple_elemet('decvar'))
+        root.append(outcomes)
+        for i, (_, correct, points) in enumerate(self.questions):
+            root.append(respcondition(points if correct else 0, i, True))
+            root.append(respcondition(points if not correct else 0, i, False))
+        return root
 
+    ############################################################################
+    @staticmethod
+    def itemfeedback(count):
+        root = et.Element(
+            'itemfeedback',
+            attrib={'ident': 'response_{}'.format(count), 'view': 'All'}
+        )
+        flow_mat = et.Element('flow_mat')
+        flow_mat.append(material('NONE'))
+        root.append(flow_mat)
+        return root
 
-def presentation(title, question_text, questions, shuffle=True):
-    root = et.Element('presentation', attrib={'label': title})
-    flow = et.Element('flow')
-    response_lid = et.Element(
-        'response_lid', attrib={'ident': 'MCMR', 'rcardinality': 'Multiple'})
-    render_choice = et.Element(
-        'render_choice', attrib={'shuffle': 'Yes' if shuffle else 'No'})
-    for i, (answer, _, _) in enumerate(questions):
-        render_choice.append(response_label(answer, i))
+    ### returns the final object ###############################################
+    def create_item(self):
+        """ This method stacks all the previously created structures together"""
+        item = et.Element('item', attrib={
+            'ident': 'undefined',
+            'title': self.title,
+            'maxattempts': self.maxattempts
+        })
 
-    root.append(flow)
-    flow.append(material(question_text))
-    flow.append(response_lid)
-    response_lid.append(render_choice)
-    return root
-
-##########################################################################
-def respcondition(points, count, correct=True):
-    root = et.Element('respcondition', attrib={'continue': 'Yes'})
-    conditionvar = et.Element('conditionvar')
-    varequal = simple_elemet(
-        'varequal',
-        text=str(count),
-        attrib={'respident': 'MCMR'}
-    )
-
-    if correct:
-        conditionvar.append(varequal)
-    else:
-        _not = et.Element('not')
-        _not.append(varequal)
-        conditionvar.append(_not)
-
-    root.append(conditionvar)
-
-    setvar = simple_elemet(
-        'setvar',
-        text=str(points),
-        attrib={'action': 'Add'}
-    )
-    root.append(setvar)
-
-    if correct:
-        displayfeedback = et.Element(
-            'displayfeedback',
-            attrib={'feedbacktype': 'Response',
-                    'linkrefid': 'response_{}'.format(count)})
-        root.append(displayfeedback)
-    return root
-
-
-def resprocessing(questions):
-    root = et.Element('resprocessing')
-    outcomes = et.Element('outcomes')
-    outcomes.append(simple_elemet('decvar'))
-    root.append(outcomes)
-    for i, (_, correct, points) in enumerate(questions):
-        root.append(respcondition(points if correct else 0, i, True))
-        root.append(respcondition(points if not correct else 0, i, False))
-    return root
-
-
-##########################################################################
-def itemfeedback(count):
-    root = et.Element(
-        'itemfeedback',
-        attrib={'ident': 'response_{}'.format(count), 'view': 'All'}
-    )
-    flow_mat = et.Element('flow_mat')
-    flow_mat.append(material('NONE'))
-    root.append(flow_mat)
-    return root
-##########################################################################
-
-
-def create_xml_tree(type, description, question_text, author, title, maxattempts, shuffle, questions):
-    root = et.Element('questestinterop')
-    tree = et.ElementTree(root)
-    item = et.Element('item', attrib={
-        'ident': 'undefined',
-        'title': title,
-        'maxattempts': maxattempts
-    })
-
-    item.append(simple_elemet('description', text=description))
-    item.append(simple_elemet('duration', text='P0Y0M0DT0H30M0S'))
-    item.append(itemmetadata(type, author))
-    item.append(presentation(title, question_text, questions, shuffle))
-    item.append(resprocessing(questions))
-    for i, _ in enumerate(questions):
-        item.append(itemfeedback(i))
-    root.append(item)
-
-    return tree
-
-
-def convert_and_print(data, output):
-    tree = create_xml_tree('MULTIPLE CHOICE QUESTION', **data)
-    tree.write(output, encoding="utf-8", xml_declaration=True)
+        item.append(simple_elemet('description', text=self.description))
+        item.append(simple_elemet('duration', text='P0Y0M0DT0H30M0S')) # 30 min
+        item.append(self.itemmetadata)
+        item.append(self.presentation)
+        item.append(self.resprocessing)
+        for i, _ in enumerate(self.questions):
+            item.append(self.itemfeedback(i))
+        return item

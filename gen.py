@@ -6,7 +6,7 @@ import os
 import sys
 
 # local import
-from hallgrim.IliasXMLCreator import multi, single
+from hallgrim.IliasXMLCreator import packer
 from hallgrim.messages import *
 from hallgrim.parser import *
 
@@ -17,9 +17,9 @@ def filename_to_module(name):
 
 def type_selector(type):
     if 'multiple' in type:
-        return multi
+        return 'MULTIPLE CHOICE QUESTION'
     if 'single' in type:
-        return single
+        return 'SINGLE CHOICE QUESTION'
 
 
 def parseme():
@@ -44,6 +44,7 @@ def main():
     output, script_name = parseme()
     script = importlib.import_module(filename_to_module(script_name))
     data = {
+        'type': type_selector(script.meta['type']),
         'description': "_description",
         'question_text': markdown(script.task),
         'author': script.meta['author'],
@@ -55,7 +56,7 @@ def main():
 
     output = os.path.join(
         'output', script.meta['title']) + '.xml' if not output else output
-    type_selector(script.meta['type']).convert_and_print(data, output)
+    packer.convert_and_print(data, output)
     info('Processed "{}" and wrote xml to "{}".'.format(script_name, output))
 
 if __name__ == '__main__':

@@ -1,14 +1,16 @@
-from .multi import *
+import xml.etree.ElementTree as et
 
-def resprocessing(questions):
-    root = et.Element('resprocessing')
-    outcomes = et.Element('outcomes')
-    outcomes.append(simple_elemet('decvar'))
-    root.append(outcomes)
-    for i, (_, correct, points) in enumerate(questions):
-        root.append(respcondition(points if correct else 0, i, True))
-    return root
+from hallgrim.IliasXMLCreator.multi import *
 
-def convert_and_print(data, output):
-    tree = create_xml_tree('SINGLE CHOICE QUESTION', **data)
-    tree.write(output, encoding="utf-8", xml_declaration=True)
+class SingleChoiceQuestion(MultipleChoiceQuestion):
+    """ is just a subclass of multi with the exception of this method.
+    Some other minor differences exists but they are handled in the
+    parent since they only concert irrelevant fields. """
+    def resprocessing(self):
+        root = et.Element('resprocessing')
+        outcomes = et.Element('outcomes')
+        outcomes.append(simple_elemet('decvar'))
+        root.append(outcomes)
+        for i, (_, correct, points) in enumerate(self.questions):
+            root.append(respcondition(points if correct else 0, i, True))
+        return root

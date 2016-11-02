@@ -5,7 +5,8 @@ meta = {
     'points': 0.5, # per correct choice
 }
 
-task = """ Hier der Anfang der Datei `punkte.csv`, die Komma-getrennte Angaben
+task = """
+Hier der Anfang der Datei `punkte.csv`, die Komma-getrennte Angaben
 zu erreichten Übungspunkten enthält [[Example Formula \\sum_{i=0}^n i]]:
 
 ```
