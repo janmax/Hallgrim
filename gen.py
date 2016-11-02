@@ -50,7 +50,7 @@ def main():
         'title': script.meta['title'],
         'maxattempts': '0',
         'shuffle': True,
-        'questions': choice_parser(script.choices),
+        'questions': choice_parser(script.choices, script.meta['points']),
     }
 
     output = os.path.join(

@@ -2,6 +2,7 @@ meta = {
     'author': 'Jan Maximilian Michal',
     'title': 'Sortieren nach Punkten (I1-ID: nipe84411eh0)',
     'type': 'multiple choice',
+    'points': 0.5, # per correct choice
 }
 
 task = """ Hier der Anfang der Datei `punkte.csv`, die Komma-getrennte Angaben
