@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3
+
 try:
     import mistune
 except ImportError as err:
@@ -14,8 +16,10 @@ from hallgrim.IliasXMLCreator import multi, single
 import hallgrim.parser
 from hallgrim.messages import *
 
+
 def filename_to_module(name):
     return name.rstrip('.py').replace('/', '.')
+
 
 def type_selector(type):
     if 'multiple' in type:
@@ -23,22 +27,24 @@ def type_selector(type):
     if 'single' in type:
         return single
 
+
 def parseme():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-o',
         '--out',
-        help='Output file',
+        help='''Specifiy different output file. If no argument is given the Name
+        of the script is used.''',
         type=argparse.FileType('w'),
         metavar='FILE')
     parser.add_argument(
-        '-i',
-        '--input',
+        'input',
         help='Script to execute',
         metavar='FILE')
 
     args = parser.parse_args()
     return args.out, args.input
+
 
 def main():
     output, script_name = parseme()
@@ -53,7 +59,8 @@ def main():
         'questions': hallgrim.parser.choice_parser(script.choices),
     }
 
-    output = os.path.join('output', script.meta['title']) + '.xml' if not output else output
+    output = os.path.join(
+        'output', script.meta['title']) + '.xml' if not output else output
     type_selector(script.meta['type']).convert_and_print(data, output)
     info('Processed "{}" and wrote xml to "{}".'.format(script_name, output))
 

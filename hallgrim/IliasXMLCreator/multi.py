@@ -30,8 +30,6 @@ def itemmetadata(type, author, feedback_setting=1):
     return root
 
 ##########################################################################
-
-
 def material(content):
     material = et.Element('material')
     material.append(simple_elemet(
@@ -65,8 +63,6 @@ def presentation(title, question_text, questions, shuffle=True):
     return root
 
 ##########################################################################
-
-
 def respcondition(points, count, correct=True):
     root = et.Element('respcondition', attrib={'continue': 'Yes'})
     conditionvar = et.Element('conditionvar')
