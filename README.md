@@ -19,6 +19,7 @@ question.
 * Add more functionality (gap, alignment, etc.)
 * Make parsers more robust.
 * reverse ILIAS authentication mechanism for automated upload.
+* Enable LaTeX through custom lexer in mistune.
 
 ### Notes
 

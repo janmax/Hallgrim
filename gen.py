@@ -1,11 +1,5 @@
 #!/usr/local/bin/python3
 
-try:
-    import mistune
-except ImportError as err:
-    print("Please install mistune to make use of markdown parsing.")
-    print("\t pip install mistune")
-
 import importlib
 import argparse
 import os
@@ -13,8 +7,8 @@ import sys
 
 # local import
 from hallgrim.IliasXMLCreator import multi, single
-import hallgrim.parser
 from hallgrim.messages import *
+from hallgrim.parser import *
 
 
 def filename_to_module(name):
@@ -51,12 +45,12 @@ def main():
     script = importlib.import_module(filename_to_module(script_name))
     data = {
         'description': "_description",
-        'question_text': mistune.markdown(script.task),
+        'question_text': markdown(script.task),
         'author': script.meta['author'],
         'title': script.meta['title'],
         'maxattempts': '0',
         'shuffle': True,
-        'questions': hallgrim.parser.choice_parser(script.choices),
+        'questions': choice_parser(script.choices),
     }
 
     output = os.path.join(

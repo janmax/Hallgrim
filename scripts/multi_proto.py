@@ -5,7 +5,7 @@ meta = {
 }
 
 task = """ Hier der Anfang der Datei `punkte.csv`, die Komma-getrennte Angaben
-zu erreichten Übungspunkten enthält:
+zu erreichten Übungspunkten enthält [[Example Formula \\sum_{i=0}^n i]]:
 
 ```
 21600001,Herr,Bollman,Fritze-Peter,15
