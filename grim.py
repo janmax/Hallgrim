@@ -84,6 +84,8 @@ def parseme():
         handle_choice_questions(args.out, args.input, args.instances)
     if args.command == 'new':
         handle_new_script(args.name, args.type, args.author, args.points)
+    if args.command == None:
+        parser.print_help()
 
 
 def handle_choice_questions(output, script_name, instances):
