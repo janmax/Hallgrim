@@ -11,11 +11,11 @@ def create_xml_tree(item_list):
     return tree
 
 
-def convert_and_print(data, output):
+def convert_and_print(data, output, instances=1):
     if data['type'] == 'MULTIPLE CHOICE QUESTION':
-        item = multi.MultipleChoiceQuestion(**data)()
+        item_list = [multi.MultipleChoiceQuestion(**data)() for _ in range(instances)]
     if data['type'] == 'SINGLE CHOICE QUESTION':
-        item = single.SingleChoiceQuestion(**data)()
+        item_list = [single.SingleChoiceQuestion(**data)() for _ in range(instances)]
 
-    tree = create_xml_tree([item])
+    tree = create_xml_tree(item_list)
     tree.write(output, encoding="utf-8", xml_declaration=True)
