@@ -1,6 +1,14 @@
 import xml.etree.ElementTree as et
 
-### static methods #############################################################
+### xmlBuildingBlocks ####################################################
+#
+# This file cointains all the static blocks of xml code that is needed in
+# all classes. These are usually just snippets to have cleaner code in other
+# files.
+#
+##########################################################################
+
+
 def simple_elemet(name, text=None, attrib={}):
     if not text:
         return et.Element(name, attrib=attrib)
@@ -15,6 +23,7 @@ def qtimetadatafield(label, entry):
     root.append(simple_elemet('fieldentry', text=entry))
     return root
 
+
 def material(content):
     material = et.Element('material')
     material.append(simple_elemet(
@@ -24,10 +33,12 @@ def material(content):
     ))
     return material
 
+
 def response_label(content, count):
     response_label = et.Element('response_label', attrib={'ident': str(count)})
     response_label.append(material(content))
     return response_label
+
 
 def respcondition(points, count, correct=True):
     root = et.Element('respcondition', attrib={'continue': 'Yes'})
@@ -60,4 +71,14 @@ def respcondition(points, count, correct=True):
             attrib={'feedbacktype': 'Response',
                     'linkrefid': 'response_{}'.format(count)})
         root.append(displayfeedback)
+    return root
+
+def itemfeedback(ident, content='NONE'):
+    root = et.Element(
+        'itemfeedback',
+        attrib={'ident': ident, 'view': 'All'}
+    )
+    flow_mat = et.Element('flow_mat')
+    flow_mat.append(material(content))
+    root.append(flow_mat)
     return root

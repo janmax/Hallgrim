@@ -4,7 +4,7 @@ from hallgrim.IliasXMLCreator.xmlBuildingBlocks import *
 
 class MultipleChoiceQuestion:
     """docstring for MultipleChoiceQuestion"""
-    def __init__(self, type, description, question_text, author, title, maxattempts, questions, shuffle=True):
+    def __init__(self, type, description, question_text, author, title, maxattempts, questions, feedback, shuffle=True):
         self.type               = type
         self.description        = description
         self.question_text      = question_text
@@ -13,6 +13,7 @@ class MultipleChoiceQuestion:
         self.maxattempts        = maxattempts
         self.shuffle            = shuffle
         self.questions          = questions
+        self.feedback           = feedback
 
         self.itemmetadata       = self.itemmetadata(feedback_setting=1)
         self.presentation       = self.presentation()
@@ -68,18 +69,6 @@ class MultipleChoiceQuestion:
             root.append(respcondition(points if not correct else 0, i, False))
         return root
 
-    ############################################################################
-    @staticmethod
-    def itemfeedback(count):
-        root = et.Element(
-            'itemfeedback',
-            attrib={'ident': 'response_{}'.format(count), 'view': 'All'}
-        )
-        flow_mat = et.Element('flow_mat')
-        flow_mat.append(material('NONE'))
-        root.append(flow_mat)
-        return root
-
     ### returns the final object ###############################################
     def create_item(self):
         """ This method stacks all the previously created structures together"""
@@ -94,6 +83,6 @@ class MultipleChoiceQuestion:
         item.append(self.itemmetadata)
         item.append(self.presentation)
         item.append(self.resprocessing)
-        for i, _ in enumerate(self.questions):
-            item.append(self.itemfeedback(i))
+        item.append(itemfeedback('response_allcorrect', self.feedback))
+        item.append(itemfeedback('response_onenotcorrect', self.feedback))
         return item

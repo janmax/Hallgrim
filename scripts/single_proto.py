@@ -29,7 +29,7 @@ choices = """
 [ ] `sort -r --field-separator "," -k 4 punkte.csv`
 """
 
-explanations = """
+feedback = """
 [ ] sort --reverse --k 5 --numeric-sort punkte.csv falsch (u.a.: ungültiges Argument --k)
 [ ] sort --r --field-separator=, -k 5 --n punkte.csv falsch (u.a.: bei kurzem Argument -k darf kein = stehen)
 [ ] sort -r -t="," -k 5 --n punkte.csv falsch (siehe oben)

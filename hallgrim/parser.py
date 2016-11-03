@@ -9,12 +9,28 @@ except ImportError as err:
     print("\t pip install mistune")
 
 
+def box(content, color):
+    return '<div style="background-color: #ffedc9; border: 1px solid {}; padding: 10px; font-size: smaller;">{}</div>'.format(color, content)
+
+
+def yellow_box(content):
+    return box(content, '#FFB12E')
+
+
+def blue_box(content):
+    return box(content, '#9999ff')
+
+
 class LaTeXRenderer(Renderer):
+
     def latex(self, formula):
         return '<span class="latex">{}</span>'.format(formula)
 
+
 class LaTeXInlineLexer(InlineLexer):
+
     """ Classes are inspired by the lexer example in the mistune readme """
+
     def enable_latex(self):
         # add latex rules
         self.rules.latex = re.compile(
@@ -27,6 +43,7 @@ class LaTeXInlineLexer(InlineLexer):
     def output_latex(self, m):
         formula = m.group(1)
         return self.renderer.latex(formula)
+
 
 def get_custom_markdown():
     renderer = LaTeXRenderer()
@@ -43,8 +60,8 @@ def choice_parser(raw_choices, points):
     array of arbitrary size """
     lines = raw_choices.strip().split('\n')
     parse = [re.match('\[(X| )\] (.*)', line).groups() for line in lines]
-    final = [(markdown(text), True if mark == 'X' else False, points) for mark, text in parse]
+    final = [(markdown(text), True if mark == 'X' else False, points)
+             for mark, text in parse]
     return final
 
 markdown = get_custom_markdown()
-

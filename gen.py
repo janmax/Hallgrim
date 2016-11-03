@@ -52,6 +52,7 @@ def main():
         'maxattempts': '0',
         'shuffle': True,
         'questions': choice_parser(script.choices, script.meta['points']),
+        'feedback': markdown(script.feedback),
     }
 
     output = os.path.join(
