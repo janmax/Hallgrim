@@ -21,20 +21,31 @@ def type_selector(type):
     if 'single' in type:
         return 'SINGLE CHOICE QUESTION'
 
+
 def file_exists(path):
     if not os.path.exists(path):
         msg = 'The script "{}" does not exist.'.format(path)
         raise argparse.ArgumentTypeError(msg)
     return path
 
+def script_is_valid(script):
+    required = ['meta', 'task', 'choices', 'feedback']
+    for field in required:
+        if not hasattr(script, field):
+            error("script does not export '{}' field.".format(field))
+    if any(not hasattr(script, field) for field in required):
+        abort("Script is invalid (see above)")
+
 def parseme():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")
 
-    parser_new = subparsers.add_parser("new", help="The utility the generate new scripts.")
+    parser_new = subparsers.add_parser(
+        "new", help="The utility the generate new scripts.")
     parser_new.add_argument(
         "name",
-        help="The name of the new script"
+        help="The name of the new script",
+        metavar='NAME'
     )
     parser_new.add_argument(
         "-t",
@@ -58,7 +69,8 @@ def parseme():
         metavar='POINTS',
     )
 
-    parser_gen = subparsers.add_parser("gen", help="Subcommand to convert from script to xml.")
+    parser_gen = subparsers.add_parser(
+        "gen", help="Subcommand to convert from script to xml.")
     parser_gen.add_argument(
         '-o',
         '--out',
@@ -90,6 +102,7 @@ def parseme():
 
 def handle_choice_questions(output, script_name, instances):
     script = importlib.import_module(file_to_module(script_name))
+    script_is_valid(script)
     data = {
         'type': type_selector(script.meta['type']),
         'description': "_description",
@@ -106,6 +119,7 @@ def handle_choice_questions(output, script_name, instances):
         'output', script.meta['title']) + '.xml' if not output else output
     packer.convert_and_print(data, output, instances)
     info('Processed "{}" and wrote xml to "{}".'.format(script_name, output))
+
 
 def handle_new_script(name, type, author, points):
     raise NotImplementedError()
