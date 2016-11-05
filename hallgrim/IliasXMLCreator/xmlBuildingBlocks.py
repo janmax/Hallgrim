@@ -8,6 +8,7 @@ import xml.etree.ElementTree as et
 #
 ##########################################################################
 
+##########################################################################
 
 def simple_elemet(name, text=None, attrib={}):
     if not text:
@@ -82,3 +83,32 @@ def itemfeedback(ident, content='NONE'):
     flow_mat.append(material(content))
     root.append(flow_mat)
     return root
+
+### gap specific #########################################################
+def material_raw(content):
+    material = et.Element('material')
+    material.append(simple_elemet(
+        'mattext',
+        text=content
+    ))
+    return material
+
+def response_str(ident, columns):
+    response_str = et.Element('response_str', attrib={'ident': indent, 'rcardinality': 'Single'})
+    render_fib   = et.Element('render_fib', attrib={'columns': str(columns), 'fibtype': "String", 'prompt': "Box"})
+    response_str.append(render_fib)
+    return response_str
+
+def response_choice(ident, answers)
+    response_str = et.Element('response_str', attrib={'ident': indent, 'rcardinality': 'Single'})
+    render_choice = et.Element('render_choice', attrib={'shuffle': 'Yes'})
+    for i, answer in enumerate(answers):
+        response_label = et.Element('response_label', attrib={'ident': str(i)})
+        response_label.append(material_raw(answer))
+    return response_str
+
+def response_num(ident, columns, _min, _max, numtype='Decimal'):
+    response_num = et.Element('response_num', attrib={'ident': ident, 'numtype': numtype, 'rcardinality': 'Single'})
+    render_fib   = et.Element('render_fib', attrib={'columns': columns, 'fibtype': numtype, 'maxnumber': _min, 'minnumber': _max, 'prompt': "Box"})
+    response_num.append(render_fib)
+    return response_num
