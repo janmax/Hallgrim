@@ -33,3 +33,10 @@ variables in a specified format.
 data and assumes unknown properties)
 3. The XML structure for one or multiple questions, readable by Ilias.
 4. An Ilias object packed as .zip file, ready for upload.
+
+#### LaTeX Support
+
+Hallgrim supports the native latex approach by ILIAS. To typeset a formula just
+out in backets like this `[[\\sum_{i=1}^n i = \\frac{n(n+1)}{2}]]`. Special
+carecters (mostly `\`) have to be escaped unless you use raw strings (`r'a raw
+string'`).
