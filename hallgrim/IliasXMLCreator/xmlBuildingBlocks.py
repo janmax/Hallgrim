@@ -99,7 +99,7 @@ def response_str(ident, columns):
     response_str.append(render_fib)
     return response_str
 
-def response_choice(ident, answers)
+def response_choice(ident, answers):
     response_str = et.Element('response_str', attrib={'ident': indent, 'rcardinality': 'Single'})
     render_choice = et.Element('render_choice', attrib={'shuffle': 'Yes'})
     for i, answer in enumerate(answers):
