@@ -78,7 +78,8 @@ class GapQuestion:
         outcomes = et.Element('outcomes')
         outcomes.append(simple_elemet('decvar'))
         root.append(outcomes)
-        for i, (_, correct, points) in enumerate(self.questions):
+        is_gap = lambda t: type(t) = tuple
+        for i, (_, correct, points) in enumerate(filter(is_gap, self.gap_list)):
             root.append(respcondition(points if correct else 0, i, True))
             root.append(respcondition(points if not correct else 0, i, False))
         return root

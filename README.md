@@ -2,8 +2,9 @@
 
 ## Usage
 
-Invoke the script with `python3 gen.py -h` in order to see usage. Very limited
-until now.
+Invoke the script with `python3 grim.py -h` in order to see usage. Currently
+many features are not yet implemented. Single and Multiple Chice questions
+can be generated also in parametrized form.
 
 Example scripts can be found in `scripts/`.
 
@@ -11,11 +12,13 @@ A first version of the tool that relied on autoilias is still in the repository
 (see `generator.py`). It will be removed as soon as the necessary features are
 implemented.
 
+### Dependencies
+
+`pip install mistune`
+
 ## TODO
 
 * Add a good description / documentation.
-* Add instruction to produce multiple (parametrized) instances of a single
-question.
 * Add more functionality (gap, alignment, etc.)
 * Make parsers more robust.
 * reverse ILIAS authentication mechanism for automated upload.

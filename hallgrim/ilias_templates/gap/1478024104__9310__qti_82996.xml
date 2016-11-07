@@ -10,7 +10,7 @@
             <qtimetadata>
                 <qtimetadatafield>
                     <fieldlabel>ILIAS_VERSION</fieldlabel>
-                    <fieldentry>5.1.8 2016-08-03</fieldentry>
+                        <fieldentry>5.1.8 2016-08-03</fieldentry>
                 </qtimetadatafield>
                 <qtimetadatafield>
                     <fieldlabel>QUESTIONTYPE</fieldlabel>
