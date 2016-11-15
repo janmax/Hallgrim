@@ -2,6 +2,7 @@ import xml.etree.ElementTree as et
 
 from hallgrim.IliasXMLCreator.multi import *
 
+
 class SingleChoiceQuestion(MultipleChoiceQuestion):
     """ is just a subclass of multi with the exception of this method.
     Some other minor differences exists but they are handled in the

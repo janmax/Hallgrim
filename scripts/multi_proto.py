@@ -2,7 +2,7 @@ meta = {
     'author': 'Jan Maximilian Michal',
     'title': 'Sortieren nach Punkten (I1-ID: nipe84411eh0)',
     'type': 'multiple choice',
-    'points': 0.5, # per correct choice
+    'points': [0.5, 5, 4, 4, 2, 1], # per correct choice
 }
 
 task = """

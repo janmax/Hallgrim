@@ -16,12 +16,15 @@ implemented.
 
 `pip install mistune`
 
-## TODO
+### TODO
 
 * Add a good description / documentation.
 * Add more functionality (gap, alignment, etc.)
 * Make parsers more robust.
 * reverse ILIAS authentication mechanism for automated upload.
+* Create whole test object with questions for direct import. Create two
+versions (one for internal use and one for the test.)
+* move moints from meta to parser
 
 ### Notes
 
@@ -34,7 +37,7 @@ data and assumes unknown properties)
 3. The XML structure for one or multiple questions, readable by Ilias.
 4. An Ilias object packed as .zip file, ready for upload.
 
-#### LaTeX Support
+### LaTeX Support
 
 Hallgrim supports the native latex approach by ILIAS. To typeset a formula just
 out in backets like this `[[\\sum_{i=1}^n i = \\frac{n(n+1)}{2}]]`. Special

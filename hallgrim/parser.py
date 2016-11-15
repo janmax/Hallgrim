@@ -1,9 +1,9 @@
 import re
-import mistune
-import copy
+
+from hallgrim.messages import *
 
 try:
-    from mistune import Renderer, InlineGrammar, InlineLexer, Markdown
+    from mistune import Renderer, InlineLexer, Markdown
 except ImportError as err:
     print("Please install mistune to make use of markdown parsing.")
     print("\t pip install mistune")
@@ -60,8 +60,13 @@ def choice_parser(raw_choices, points):
     array of arbitrary size """
     lines = raw_choices.strip().split('\n')
     parse = [re.match('\[(X| )\] (.*)', line).groups() for line in lines]
-    final = [(markdown(text), True if mark == 'X' else False, points)
-             for mark, text in parse]
+    if type(points) is not list:
+        points = [points for _ in parse]
+    elif len(parse) != len(points):
+        abort("Length of point list does not match number of choices.")
+    final = [(markdown(text), True if mark == 'X' else False, point)
+             for (mark, text), point in zip(parse, points)]
     return final
+
 
 markdown = get_custom_markdown()

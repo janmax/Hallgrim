@@ -2,7 +2,7 @@ meta = {
     'author': 'Jan Maximilian Michal',
     'title': 'Sortieren nach Punkten (I1-ID: nipe84411eh0)',
     'type': 'single choice',
-    'points': 4, # for correct answer
+    'points': 4,  # for correct answer
 }
 
 task = """ Hier der Anfang der Datei `punkte.csv`, die Komma-getrennte Angaben
@@ -30,10 +30,12 @@ choices = """
 """
 
 feedback = """
+```
 [ ] sort --reverse --k 5 --numeric-sort punkte.csv falsch (u.a.: ungültiges Argument --k)
 [ ] sort --r --field-separator=, -k 5 --n punkte.csv falsch (u.a.: bei kurzem Argument -k darf kein = stehen)
 [ ] sort -r -t="," -k 5 --n punkte.csv falsch (siehe oben)
 [X] sort --reverse -t "," -k 5 -n punkte.csv richtig
 [ ] sort -r --field-separator "," -k 4 -numeric punkte.csv falsch (u.a.: Punkte stehen in Spalte 5)
 [ ] sort -r --field-separator "," -k 4 punkte.csv falsch (u.a.: keine numerische Sortierung)
+```
 """
