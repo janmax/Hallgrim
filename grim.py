@@ -110,7 +110,7 @@ def handle_choice_questions(output, script_name, instances):
         'author': script.meta['author'],
         'title': script.meta['title'],
         'maxattempts': '0',
-        'shuffle': True,
+        'shuffle': script.meta['shuffle'] if 'shuffle' in script.meta else True,
         'questions': choice_parser(script.choices, script.meta['points']),
         'feedback': markdown(script.feedback),
     }

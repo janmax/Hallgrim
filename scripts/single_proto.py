@@ -22,9 +22,9 @@ sortiert auszugeben (also erst große, dann kleinere Punktzahlen)? """
 
 choices = """
 [ ] `sort --reverse --k 5 --numeric-sort punkte.csv`
-[ ] `sort --r --field-separator=, -k 5 --n punkte.csv`
+[2] `sort --r --field-separator=, -k 5 --n punkte.csv`
 [ ] `sort -r -t="," -k 5 --n punkte.csv`
-[X] `sort --reverse -t "," -k 5 -n punkte.csv`
+[4] `sort --reverse -t "," -k 5 -n punkte.csv`
 [ ] `sort -r --field-separator "," -k 4 -numeric punkte.csv`
 [ ] `sort -r --field-separator "," -k 4 punkte.csv`
 """

@@ -1,13 +1,16 @@
 import re
 
-from hallgrim.messages import *
-
 try:
-    from mistune import Renderer, InlineLexer, Markdown
+    from mistune import Renderer, InlineLexer, Markdown, escape
+    from pygments import highlight
+    from pygments.lexers import get_lexer_by_name
+    from pygments.formatters import html, HtmlFormatter
 except ImportError as err:
     print("Please install mistune to make use of markdown parsing.")
     print("\t pip install mistune")
 
+
+no_copy = "-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;"
 
 def box(content, color):
     return '<div style="background-color: #ffedc9; border: 1px solid {}; padding: 10px; font-size: smaller;">{}</div>'.format(color, content)
@@ -20,11 +23,23 @@ def yellow_box(content):
 def blue_box(content):
     return box(content, '#9999ff')
 
+def markdown(value):
+    renderer = HighlightRenderer()
+    markdown = Markdown(renderer=renderer)
+    return markdown(value)
 
 class LaTeXRenderer(Renderer):
 
     def latex(self, formula):
         return '<span class="latex">{}</span>'.format(formula)
+
+    def block_code(self, code, lang):
+        if not lang:
+            return '\n<pre><code>%s</code></pre>\n' % \
+                escape(code)
+        lexer = get_lexer_by_name(lang, stripall=True)
+        formatter = HtmlFormatter(noclasses=True, cssstyles=no_copy)
+        return highlight(code, lexer, formatter)
 
 
 class LaTeXInlineLexer(InlineLexer):
@@ -57,15 +72,20 @@ def get_custom_markdown():
 def choice_parser(raw_choices, points):
     """ Parse the multiple choice answers and form an array that has the
     following form: (text, isCorrect, points, solution) and store them in an
-    array of arbitrary size """
-    lines = raw_choices.strip().split('\n')
-    parse = [re.match('\[(X| )\] (.*)', line).groups() for line in lines]
-    if type(points) is not list:
-        points = [points for _ in parse]
-    elif len(parse) != len(points):
-        abort("Length of point list does not match number of choices.")
-    final = [(markdown(text), True if mark == 'X' else False, point)
-             for (mark, text), point in zip(parse, points)]
+    array of arbitrary size
+
+    TODO : This is too dense. simplyfy!
+    """
+    if type(raw_choices) is str:
+        lines = raw_choices.strip().split('\n')
+    elif type(raw_choices) is list:
+        lines = raw_choices
+    regex = re.compile('\[(\d|X| )\]\s+([\w\W]+)', re.MULTILINE)
+    parse = [re.match(regex, line).groups() for line in lines]
+    final = [(
+        markdown(text),
+        True if mark != ' ' else False,
+        float(mark) if mark not in ' X' else points) for mark, text in parse]
     return final
 
 
