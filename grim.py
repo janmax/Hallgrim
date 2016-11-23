@@ -30,12 +30,14 @@ def file_exists(path):
         raise argparse.ArgumentTypeError(msg)
     return path
 
+
 def script_is_valid(script, required):
     for field in required:
         if not hasattr(script, field):
             error("script does not export '{}' field.".format(field))
     if any(not hasattr(script, field) for field in required):
         abort("Script is invalid (see above)")
+
 
 def parseme():
     parser = argparse.ArgumentParser()
@@ -100,15 +102,17 @@ def parseme():
     if args.command == None:
         parser.print_help()
 
+
 def delegator(output, script_name, instances):
     script = importlib.import_module(file_to_module(script_name))
     handler = {
-        'gap' : handle_gap_questions,
-        'single choice' : handle_choice_questions,
-        'multiple choice' : handle_choice_questions
+        'gap': handle_gap_questions,
+        'single choice': handle_choice_questions,
+        'multiple choice': handle_choice_questions
     }[script.meta['type']]
 
     handler(output, script, instances)
+
 
 def handle_gap_questions(output, script, instances):
     script_is_valid(script, required=['meta', 'task', 'feedback'])
@@ -126,7 +130,9 @@ def handle_gap_questions(output, script, instances):
     output = os.path.join(
         'output', script.meta['title']) + '.xml' if not output else output
     packer.convert_and_print(data, output, instances)
-    info('Processed "{}" and wrote xml to "{}".'.format(script.__name__, output))
+    info('Processed "{}" and wrote xml to "{}".'.format(
+        script.__name__, output))
+
 
 def handle_choice_questions(output, script, instances):
     script_is_valid(script, required=['meta', 'task', 'choices', 'feedback'])
@@ -145,11 +151,30 @@ def handle_choice_questions(output, script, instances):
     output = os.path.join(
         'output', script.meta['title']) + '.xml' if not output else output
     packer.convert_and_print(data, output, instances)
-    info('Processed "{}" and wrote xml to "{}".'.format(script.__name__, output))
+    info('Processed "{}" and wrote xml to "{}".'.format(
+        script.__name__, output))
 
 
-def handle_new_script(name, type, author, points):
-    raise NotImplementedError()
+def handle_new_script(name, qtype, author, points):
+    with open('scripts/' + name + '.py', 'x') as new_script:
+        choice = ''
+        if qtype in ['multi', 'single']:
+            choice = '\nchoices = """\n[X] A\n[ ] B\n[ ] C\n[X] D\n"""\n'
+
+        scaffolding = '''
+meta = {{
+    'author': '{}',
+    'title': '{}',
+    'type': '{}',
+    'points': {}, # per correct choice
+}}
+
+task = """ decription """
+{}
+feedback = """ decription """
+'''.format(author, name, qtype, points, choice).strip()
+        print(scaffolding, file=new_script)
+        info('Generated new script "{}."'.format(new_script.name))
 
 if __name__ == '__main__':
     parseme()
