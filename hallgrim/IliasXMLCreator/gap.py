@@ -2,32 +2,38 @@ import xml.etree.ElementTree as et
 
 from hallgrim.IliasXMLCreator.xmlBuildingBlocks import *
 
+def xml_print(element, **kwargs):
+    import xml.dom.minidom
+
+    xml = xml.dom.minidom.parseString(et.tostring(element, encoding='utf8', method='xml')) # or xml.dom.minidom.parseString(xml_string)
+    print( xml.toprettyxml(), **kwargs )
+
 
 ###
 # Solution 1
 # ['text', 'text', 'text']
-# [('gap_solution', points, length), ..., (['one', 'two', 'three'], points, length)]
+# [('gap_solution', points), ..., (['one', 'two', 'three'], points)]
 #
 # str : str_gap
 # list : choice_gap
 # tuple : num_gap (x, min, max)
 #
 # Solution 2
-# ['text', ('gap_solution', points, length), ('gap_solution', points, length), 'text', ...]
+# ['text', ('gap_solution', points), ('gap_solution', points), 'text', ...]
 #
 ###
 
 class GapQuestion:
     """docstring for GapQuestion"""
-    def __init__(self, type, description, gap_list, author, title, questions, feedback, gapLength):
+    def __init__(self, type, description, gap_list, author, title, shuffle, feedback, gap_length):
         self.type           = type
         self.description    = description
         self.gap_list       = gap_list
         self.author         = author
         self.title          = title
-        self.questions      = questions
+        self.shuffle        = shuffle
         self.feedback       = feedback
-        self.gapLength      = gapLength
+        self.gap_length     = gap_length
 
         self.itemmetadata       = self.itemmetadata(feedback_setting=1)
         self.presentation       = self.presentation()
@@ -45,7 +51,7 @@ class GapQuestion:
         subroot.append(qtimetadatafield('additional_cont_edit_mode', 'default'))
         subroot.append(qtimetadatafield('externalId', '99.99'))
         subroot.append(qtimetadatafield('textgaprating', 'ci'))
-        subroot.append(qtimetadatafield('fixedTextLength', str(self.gapLength)))
+        subroot.append(qtimetadatafield('fixedTextLength', str(self.gap_length)))
         subroot.append(qtimetadatafield('identicalScoring', '1'))
         subroot.append(qtimetadatafield('combinations', 'W10='))
         root = et.Element('itemmetadata')
@@ -62,24 +68,49 @@ class GapQuestion:
             if type(item) == str:
                 f = material(item)
             if type(item) == tuple:
-                if type(item[0] == list):
-                    f = response_choice(gap_ident, item[0])
-                if type(item[0] == str):
-                    f = response_str(gap_ident, self.gapLength)
-                if type(item[0] == tuple):
-                    f = response_num(gap_ident, self.gapLength, item[1], item[2]):
+                if type(item[0]) == list:
+                    f = response_choice("gap_{}".format(gap_ident), item[0])
+                if type(item[0]) == str:
+                    f = response_str("gap_{}".format(gap_ident), self.gap_length)
+                if type(item[0]) == tuple:
+                    f = response_num("gap_{}".format(gap_ident), self.gap_length, item[1], item[2])
                 gap_ident += 1
             flow.append(f)
+
+
         return root
 
     ############################################################################
     def resprocessing(self):
         root = et.Element('resprocessing')
         outcomes = et.Element('outcomes')
-        outcomes.append(simple_elemet('decvar'))
+        outcomes.append(simple_element('decvar'))
         root.append(outcomes)
-        is_gap = lambda t: type(t) = tuple
-        for i, (_, correct, points) in enumerate(filter(is_gap, self.gap_list)):
-            root.append(respcondition(points if correct else 0, i, True))
-            root.append(respcondition(points if not correct else 0, i, False))
+        is_gap = lambda t: type(t) == tuple
+        for i, (answer, points) in enumerate(filter(is_gap, self.gap_list)):
+            if type(answer) == list:
+                for j, (choice, points) in enumerate(answer): # verschattung
+                    root.append(respcondition_gap(points, i, choice, j))
+            if type(answer) == str:
+                root.append(respcondition_gap(points, i, answer))
+            if type(answer) == tuple:
+                root.append(respcondition_gap(points, i, answer[0]))
         return root
+
+    ### returns the final object ###############################################
+    def create_item(self):
+        """ This method stacks all the previously created structures together"""
+        item = et.Element('item', attrib={
+            'ident': 'undefined',
+            'title': self.title,
+            'maxattempts': "99"
+        })
+
+        item.append(simple_element('description', text=self.description))
+        item.append(simple_element('duration', text='P0Y0M0DT0H30M0S')) # 30 min
+        item.append(self.itemmetadata)
+        item.append(self.presentation)
+        item.append(self.resprocessing)
+        item.append(itemfeedback('response_allcorrect', self.feedback))
+        item.append(itemfeedback('response_onenotcorrect', self.feedback))
+        return item

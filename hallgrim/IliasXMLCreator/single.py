@@ -10,8 +10,8 @@ class SingleChoiceQuestion(MultipleChoiceQuestion):
     def resprocessing(self):
         root = et.Element('resprocessing')
         outcomes = et.Element('outcomes')
-        outcomes.append(simple_elemet('decvar'))
+        outcomes.append(simple_element('decvar'))
         root.append(outcomes)
         for i, (_, correct, points) in enumerate(self.questions):
-            root.append(respcondition(points if correct else 0, i, True))
+            root.append(respcondition(points if correct else 0, 'MCSR', i, True))
         return root

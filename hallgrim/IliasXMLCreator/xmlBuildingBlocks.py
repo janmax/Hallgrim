@@ -10,7 +10,14 @@ import xml.etree.ElementTree as et
 
 ##########################################################################
 
-def simple_elemet(name, text=None, attrib={}):
+def xml_print(element, **kwargs):
+    import xml.dom.minidom
+
+    xml = xml.dom.minidom.parseString(et.tostring(element, encoding='utf8', method='xml')) # or xml.dom.minidom.parseString(xml_string)
+    print( xml.toprettyxml(), **kwargs )
+
+
+def simple_element(name, text=None, attrib={}):
     if not text:
         return et.Element(name, attrib=attrib)
     node = et.Element(name, attrib=attrib)
@@ -20,14 +27,14 @@ def simple_elemet(name, text=None, attrib={}):
 
 def qtimetadatafield(label, entry):
     root = et.Element('qtimetadatafield')
-    root.append(simple_elemet('fieldlabel', text=label))
-    root.append(simple_elemet('fieldentry', text=entry))
+    root.append(simple_element('fieldlabel', text=label))
+    root.append(simple_element('fieldentry', text=entry))
     return root
 
 
 def material(content):
     material = et.Element('material')
-    material.append(simple_elemet(
+    material.append(simple_element(
         'mattext',
         text=content,
         attrib={'texttype': 'text/xhtml'}
@@ -40,14 +47,16 @@ def response_label(content, count):
     response_label.append(material(content))
     return response_label
 
+def displayfeedback(gap=False):
+    pass
 
-def respcondition(points, count, correct=True):
+def respcondition(points, respident, count, correct=True):
     root = et.Element('respcondition', attrib={'continue': 'Yes'})
     conditionvar = et.Element('conditionvar')
-    varequal = simple_elemet(
+    varequal = simple_element(
         'varequal',
         text=str(count),
-        attrib={'respident': 'MCMR'}
+        attrib={'respident': respident}
     )
 
     if correct:
@@ -59,7 +68,7 @@ def respcondition(points, count, correct=True):
 
     root.append(conditionvar)
 
-    setvar = simple_elemet(
+    setvar = simple_element(
         'setvar',
         text=str(points),
         attrib={'action': 'Add'}
@@ -85,26 +94,55 @@ def itemfeedback(ident, content='NONE'):
     return root
 
 ### gap specific #########################################################
+def respcondition_gap(points, resp_count, answer, count=0):
+    root = et.Element('respcondition', attrib={'continue': 'Yes'})
+    conditionvar = et.Element('conditionvar')
+    varequal = simple_element(
+        'varequal',
+        text=answer,
+        attrib={'respident': 'gap_{}'.format(resp_count)}
+    )
+
+    conditionvar.append(varequal)
+    setvar = simple_element(
+        'setvar',
+        text=str(points),
+        attrib={'action': 'Add'}
+    )
+
+    displayfeedback = et.Element(
+        'displayfeedback',
+        attrib={'feedbacktype': 'Response',
+                'linkrefid': '{}_Response_{}'.format(resp_count, count)})
+
+    root.append(conditionvar)
+    root.append(setvar)
+    root.append(displayfeedback)
+    return root
+
+
 def material_raw(content):
     material = et.Element('material')
-    material.append(simple_elemet(
+    material.append(simple_element(
         'mattext',
         text=content
     ))
     return material
 
 def response_str(ident, columns):
-    response_str = et.Element('response_str', attrib={'ident': indent, 'rcardinality': 'Single'})
+    response_str = et.Element('response_str', attrib={'ident': ident, 'rcardinality': 'Single'})
     render_fib   = et.Element('render_fib', attrib={'columns': str(columns), 'fibtype': "String", 'prompt': "Box"})
     response_str.append(render_fib)
     return response_str
 
 def response_choice(ident, answers):
-    response_str = et.Element('response_str', attrib={'ident': indent, 'rcardinality': 'Single'})
+    response_str = et.Element('response_str', attrib={'ident': str(ident), 'rcardinality': 'Single'})
     render_choice = et.Element('render_choice', attrib={'shuffle': 'Yes'})
-    for i, answer in enumerate(answers):
+    response_str.append(render_choice)
+    for i, (answer, _) in enumerate(answers):
         response_label = et.Element('response_label', attrib={'ident': str(i)})
         response_label.append(material_raw(answer))
+        render_choice.append(response_label)
     return response_str
 
 def response_num(ident, columns, _min, _max, numtype='Decimal'):
@@ -112,3 +150,7 @@ def response_num(ident, columns, _min, _max, numtype='Decimal'):
     render_fib   = et.Element('render_fib', attrib={'columns': columns, 'fibtype': numtype, 'maxnumber': _min, 'minnumber': _max, 'prompt': "Box"})
     response_num.append(render_fib)
     return response_num
+
+
+# xml_print(response_choice(2, ['a', 'b', 'c']))
+

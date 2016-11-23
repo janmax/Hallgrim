@@ -2,6 +2,7 @@ import xml.etree.ElementTree as et
 
 from hallgrim.IliasXMLCreator.xmlBuildingBlocks import *
 
+
 class MultipleChoiceQuestion:
     """docstring for MultipleChoiceQuestion"""
     def __init__(self, type, description, question_text, author, title, maxattempts, questions, feedback, shuffle=True):
@@ -30,7 +31,7 @@ class MultipleChoiceQuestion:
         subroot = et.Element('qtimetadata')
         subroot.append(qtimetadatafield('ILIAS_VERSION', '5.1.8 2016-08-03'))
         subroot.append(qtimetadatafield('QUESTIONTYPE', self.type))
-        subroot.append(qtimetadatafield('AUTHOR',  self.author))
+        subroot.append(qtimetadatafield('AUTHOR', self.author))
         subroot.append(qtimetadatafield('additional_cont_edit_mode', 'default'))
         subroot.append(qtimetadatafield('externalId', '99.99'))
         subroot.append(qtimetadatafield('thumb_size', None))
@@ -62,11 +63,11 @@ class MultipleChoiceQuestion:
     def resprocessing(self):
         root = et.Element('resprocessing')
         outcomes = et.Element('outcomes')
-        outcomes.append(simple_elemet('decvar'))
+        outcomes.append(simple_element('decvar'))
         root.append(outcomes)
         for i, (_, correct, points) in enumerate(self.questions):
-            root.append(respcondition(points if correct else 0, i, True))
-            root.append(respcondition(points if not correct else 0, i, False))
+            root.append(respcondition(points if correct else 0, 'MCMR', i, True))
+            root.append(respcondition(points if not correct else 0, 'MCMR', i, False))
         return root
 
     ### returns the final object ###############################################
@@ -78,8 +79,8 @@ class MultipleChoiceQuestion:
             'maxattempts': self.maxattempts
         })
 
-        item.append(simple_elemet('description', text=self.description))
-        item.append(simple_elemet('duration', text='P0Y0M0DT0H30M0S')) # 30 min
+        item.append(simple_element('description', text=self.description))
+        item.append(simple_element('duration', text='P0Y0M0DT0H30M0S')) # 30 min
         item.append(self.itemmetadata)
         item.append(self.presentation)
         item.append(self.resprocessing)

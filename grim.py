@@ -20,6 +20,8 @@ def type_selector(type):
         return 'MULTIPLE CHOICE QUESTION'
     if 'single' in type:
         return 'SINGLE CHOICE QUESTION'
+    if 'gap' in type:
+        return 'CLOZE QUESTION'
 
 
 def file_exists(path):
@@ -28,8 +30,7 @@ def file_exists(path):
         raise argparse.ArgumentTypeError(msg)
     return path
 
-def script_is_valid(script):
-    required = ['meta', 'task', 'choices', 'feedback']
+def script_is_valid(script, required):
     for field in required:
         if not hasattr(script, field):
             error("script does not export '{}' field.".format(field))
@@ -93,16 +94,42 @@ def parseme():
     args = parser.parse_args()
 
     if args.command == 'gen':
-        handle_choice_questions(args.out, args.input, args.instances)
+        delegator(args.out, args.input, args.instances)
     if args.command == 'new':
         handle_new_script(args.name, args.type, args.author, args.points)
     if args.command == None:
         parser.print_help()
 
-
-def handle_choice_questions(output, script_name, instances):
+def delegator(output, script_name, instances):
     script = importlib.import_module(file_to_module(script_name))
-    script_is_valid(script)
+    handler = {
+        'gap' : handle_gap_questions,
+        'single choice' : handle_choice_questions,
+        'multiple choice' : handle_choice_questions
+    }[script.meta['type']]
+
+    handler(output, script, instances)
+
+def handle_gap_questions(output, script, instances):
+    script_is_valid(script, required=['meta', 'task', 'feedback'])
+    data = {
+        'type': type_selector(script.meta['type']),
+        'description': "_description",
+        'gap_list': gap_parser(script.task),
+        'author': script.meta['author'],
+        'title': script.meta['title'],
+        'shuffle': script.meta['shuffle'] if 'shuffle' in script.meta else True,
+        'feedback': markdown(script.feedback),
+        'gap_length': script.meta['gap_length'] if 'gap_length' in script.meta else 20,
+    }
+
+    output = os.path.join(
+        'output', script.meta['title']) + '.xml' if not output else output
+    packer.convert_and_print(data, output, instances)
+    info('Processed "{}" and wrote xml to "{}".'.format(script.__name__, output))
+
+def handle_choice_questions(output, script, instances):
+    script_is_valid(script, required=['meta', 'task', 'choices', 'feedback'])
     data = {
         'type': type_selector(script.meta['type']),
         'description': "_description",
@@ -118,7 +145,7 @@ def handle_choice_questions(output, script_name, instances):
     output = os.path.join(
         'output', script.meta['title']) + '.xml' if not output else output
     packer.convert_and_print(data, output, instances)
-    info('Processed "{}" and wrote xml to "{}".'.format(script_name, output))
+    info('Processed "{}" and wrote xml to "{}".'.format(script.__name__, output))
 
 
 def handle_new_script(name, type, author, points):
