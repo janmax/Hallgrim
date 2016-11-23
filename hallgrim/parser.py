@@ -110,9 +110,9 @@ def gap_parser(task):
     final = []
     for s in m:
         lines = s.strip().split('\n')
-        regex = re.compile('\[(\d|X| )\]\s+([\w\W]+)', re.MULTILINE)
+        regex = re.compile('\[(([0-9]*[.])?[0-9]+| )\]\s?([\w\W]+)', re.MULTILINE)
         parse = [re.search(regex, line).groups() for line in lines]
-        final.append([(text.strip(), float(points) if not points == ' ' else 0) for points, text in parse])
+        final.append([(text.strip(), float(points) if not points == ' ' else 0) for points, _, text in parse])
 
     sep = '  !"§$%&/(XCVBNM;  '
     no_gaps   = re.sub(r, sep, task)
