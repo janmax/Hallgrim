@@ -14,8 +14,8 @@ implemented.
 
 ### Dependencies
 
-`pip install mistune`
-`pip install pygments`
+- `pip install mistune`
+- `pip install pygments`
 
 ### TODO
 
