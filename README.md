@@ -3,7 +3,7 @@
 ## Usage
 
 Invoke the script with `python3 grim.py -h` in order to see usage. Currently
-many features are not yet implemented. Single and Multiple Chice questions
+many features are not yet implemented. Single and Multiple Choice questions
 can be generated also in parametrized form.
 
 Example scripts can be found in `scripts/examples/`.
@@ -41,5 +41,5 @@ data and assumes unknown properties)
 ### LaTeX Support
 
 Hallgrim supports the native latex approach by ILIAS. To typeset a formula just
-out in backets like this `[[\\suam_{i=1}^n i = \\frac{n(n+1)}{2}]]`. Special
-carecters (mostly `\`) have to be escaped unless you use raw strings (`r'a raw string'`).
+put it in brackets like this `[[\\suam_{i=1}^n i = \\frac{n(n+1)}{2}]]`. Special
+caretakers (mostly `\`) have to be escaped unless you use raw strings (`r'a raw string'`).
