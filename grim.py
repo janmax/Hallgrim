@@ -1,5 +1,22 @@
 #!/usr/local/bin/python3
 
+################################################################################
+#
+# This script contains the main part of hallgrim and ist the only script that
+# needs to ne invoked. The steps it takes to generate a task are as follows:
+#
+# * parse the commandline arguments with argparse
+# * for each script determine the type and validate correct syntax
+# * delegate the script to a handler for the specific type
+# * the handler parses the script into the intermediate represenatation (mostly
+#   arrays)
+# * the handler passes the needed information to the script generator, which
+#   will ptint the final xml file.
+# * a finisher compresses data if needed (needs to be implemented, maybe as s
+#   eperate subparser).
+#
+################################################################################
+
 import importlib
 import argparse
 import os
@@ -9,6 +26,19 @@ import sys
 from hallgrim.IliasXMLCreator import packer
 from hallgrim.messages import *
 from hallgrim.parser import *
+
+scaffolding = r'''
+meta = {{
+    'author': '{}',
+    'title': '{}',
+    'type': '{}',
+    'points': {},
+}}
+
+task = """ decription """
+{}
+feedback = """ decription """
+'''
 
 
 def file_to_module(name):
@@ -69,6 +99,7 @@ def parseme():
         "--points",
         help='Points given for correct answer (different behavior for different questions)',
         type=float,
+        default=0.0,
         metavar='POINTS',
     )
 
@@ -83,6 +114,7 @@ def parseme():
     parser_gen.add_argument(
         'input',
         help='Script to execute',
+        nargs='+',
         type=file_exists,
         metavar='FILE')
     parser_gen.add_argument(
@@ -103,15 +135,16 @@ def parseme():
         parser.print_help()
 
 
-def delegator(output, script_name, instances):
-    script = importlib.import_module(file_to_module(script_name))
-    handler = {
-        'gap': handle_gap_questions,
-        'single choice': handle_choice_questions,
-        'multiple choice': handle_choice_questions
-    }[script.meta['type']]
+def delegator(output, script_list, instances):
+    for script_name in filter(lambda a: a.endswith('.py'), script_list):
+        script = importlib.import_module(file_to_module(script_name))
+        handler = {
+            'gap': handle_gap_questions,
+            'single choice': handle_choice_questions,
+            'multiple choice': handle_choice_questions
+        }[script.meta['type']]
 
-    handler(output, script, instances)
+        handler(output, script, instances)
 
 
 def handle_gap_questions(output, script, instances):
@@ -151,29 +184,18 @@ def handle_choice_questions(output, script, instances):
     output = os.path.join(
         'output', script.meta['title']) + '.xml' if not output else output
     packer.convert_and_print(data, output, instances)
-    info('Processed "{}" and wrote xml to "{}".'.format(
-        script.__name__, output))
+    info('Processed "{}" and'.format(script.__name__))
+    info('wrote xml "{}"'.format(output), notag=True)
 
 
 def handle_new_script(name, qtype, author, points):
-    with open('scripts/' + name + '.py', 'x') as new_script:
+    with open('scripts/' + name + '.py', 'w') as new_script:
         choice = ''
         if qtype in ['multi', 'single']:
             choice = '\nchoices = """\n[X] A\n[ ] B\n[ ] C\n[X] D\n"""\n'
 
-        scaffolding = '''
-meta = {{
-    'author': '{}',
-    'title': '{}',
-    'type': '{}',
-    'points': {}, # per correct choice
-}}
-
-task = """ decription """
-{}
-feedback = """ decription """
-'''.format(author, name, qtype, points, choice).strip()
-        print(scaffolding, file=new_script)
+        print(scaffolding.format(
+            author, name, qtype, points, choice).strip(), file=new_script)
         info('Generated new script "{}."'.format(new_script.name))
 
 if __name__ == '__main__':

@@ -6,8 +6,8 @@ def warn(msg):
 def debug(msg):
     print('[DEBUG]', msg)
 
-def info(msg):
-    print('[INFO]', msg)
+def info(msg, notag=False):
+    print('[INFO]' if not notag else '      ', msg)
 
 def error(msg):
     print('[ERROR]', msg)
