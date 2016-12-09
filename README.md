@@ -41,5 +41,5 @@ data and assumes unknown properties)
 ### LaTeX Support
 
 Hallgrim supports the native latex approach by ILIAS. To typeset a formula just
-put it in brackets like this `[[\\suam_{i=1}^n i = \\frac{n(n+1)}{2}]]`. Special
+put it in brackets like this `[[\\sum_{i=1}^n i = \\frac{n(n+1)}{2}]]`. Special
 caretakers (mostly `\`) have to be escaped unless you use raw strings (`r'a raw string'`).

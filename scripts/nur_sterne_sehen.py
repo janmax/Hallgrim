@@ -30,7 +30,8 @@ choices = """
 [ ] [[2^n]]
 [ ] [[2n+1]]"""
 
-feedback = r""" Die erste Zeile ergibt genau die Ausgabe `1`. In jeder folgenden
+feedback = r"""
+Die erste Zeile ergibt genau die Ausgabe `1`. In jeder folgenden
 Zeile wird die Anzahl der Zahlen verdoppelt und um eine weitere Zahl ergänzt.
 Die Anzahl der Zahlen [[a_n]] im Schritt [[n]] ist daher: [[a_n = 2a_{n-1} +
 1]].

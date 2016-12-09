@@ -6,3 +6,4 @@ __pycache__/
 output/*
 notes.html
 .DS_Store
+*.sublime-workspace

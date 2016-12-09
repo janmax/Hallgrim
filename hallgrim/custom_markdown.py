@@ -40,7 +40,8 @@ def markdown(value):
 class LaTeXRenderer(Renderer):
 
     def latex(self, formula):
-        return '<span class="latex">{}</span>'.format(formula)
+        return r'\({}\)'.format(formula)
+        # alternative return '<span class="latex">{}</span>'.format(formula)
 
     def block_code(self, code, lang):
         if not lang:
