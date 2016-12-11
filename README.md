@@ -19,8 +19,8 @@ implemented.
 
 ### TODO
 
-* Add a good description / documentation.
-* Add more functionality (finalize gap, alignment)
+* Add a more description / documentation.
+* Add more functionality (numeric gap, multiple answers per gap, alignment)
 * Make parsers more robust.
 * Create whole test object with questions for direct import. Create two
 versions (one for internal use and one for the test.)
