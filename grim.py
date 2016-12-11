@@ -2,18 +2,18 @@
 
 ################################################################################
 #
-# This script contains the main part of hallgrim and ist the only script that
-# needs to ne invoked. The steps it takes to generate a task are as follows:
+# This script contains the main part of hallgrim and is the only script that
+# needs to be invoked. The steps it takes to generate a task are as follows:
 #
 # * parse the commandline arguments with argparse
 # * for each script determine the type and validate correct syntax
 # * delegate the script to a handler for the specific type
-# * the handler parses the script into the intermediate represenatation (mostly
+# * the handler parses the script into the intermediate representation (mostly
 #   arrays)
 # * the handler passes the needed information to the script generator, which
-#   will ptint the final xml file.
-# * a finisher compresses data if needed (needs to be implemented, maybe as s
-#   eperate subparser).
+#   will print the final xml file.
+# * a finisher compresses data if needed (needs to be implemented, maybe as
+#   separate subparser).
 #
 ################################################################################
 
