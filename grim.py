@@ -47,7 +47,7 @@ def file_to_module(name):
 
 
 def type_selector(type):
-    if 'multiple' in type:
+    if 'multi' in type:
         return 'MULTIPLE CHOICE QUESTION'
     if 'single' in type:
         return 'SINGLE CHOICE QUESTION'
@@ -141,7 +141,9 @@ def delegator(output, script_list, instances):
         script = importlib.import_module(file_to_module(script_name))
         handler = {
             'gap': handle_gap_questions,
+            'single': handle_choice_questions,
             'single choice': handle_choice_questions,
+            'multi': handle_choice_questions,
             'multiple choice': handle_choice_questions
         }[script.meta['type']]
 
@@ -164,8 +166,8 @@ def handle_gap_questions(output, script, instances):
     output = os.path.join(
         'output', script.meta['title']) + '.xml' if not output else output
     packer.convert_and_print(data, output, instances)
-    info('Processed "{}" and wrote xml to "{}".'.format(
-        script.__name__, output))
+    info('Processed "{}" and'.format(script.__name__))
+    info('wrote xml "{}"'.format(output), notag=True)
 
 
 def handle_choice_questions(output, script, instances):
@@ -202,3 +204,4 @@ def handle_new_script(name, qtype, author, points):
 if __name__ == '__main__':
     markdown = get_markdown()
     parseme()
+    exit("All done. Goodbye.")

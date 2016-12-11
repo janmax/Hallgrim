@@ -2,7 +2,7 @@ meta = {
     'author': 'ILIAS Author',
     'title': 'Eine Methode (I1-ID: 75li4j91gdg0)',
     'type': 'multi',
-    'points': 0.0,
+    'points': 5.0,
 }
 
 task = """ decription """
