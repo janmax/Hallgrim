@@ -24,6 +24,7 @@ import sys
 
 # local import
 from hallgrim.IliasXMLCreator import packer
+from hallgrim.custom_markdown import get_markdown
 from hallgrim.messages import *
 from hallgrim.parser import *
 
@@ -178,7 +179,7 @@ def handle_choice_questions(output, script, instances):
         'maxattempts': '0',
         'shuffle': script.meta['shuffle'] if 'shuffle' in script.meta else True,
         'questions': choice_parser(script.choices, script.meta['points']),
-        'feedback': markdown(script.feedback),
+        'feedback': markdown(script.feedback)
     }
 
     output = os.path.join(
@@ -191,7 +192,7 @@ def handle_choice_questions(output, script, instances):
 def handle_new_script(name, qtype, author, points):
     with open('scripts/' + name + '.py', 'w') as new_script:
         choice = ''
-        if qtype in ['multi', 'single']:
+        if qtype in ['multiple choice', 'single choice']:
             choice = '\nchoices = """\n[X] A\n[ ] B\n[ ] C\n[X] D\n"""\n'
 
         print(scaffolding.format(
@@ -199,4 +200,5 @@ def handle_new_script(name, qtype, author, points):
         info('Generated new script "{}."'.format(new_script.name))
 
 if __name__ == '__main__':
+    markdown = get_markdown()
     parseme()

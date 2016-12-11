@@ -43,13 +43,14 @@ task = """ Folgendes Codefragment soll die Multiplikation eines Zeilenvektors mi
 04: int[] z = { 12, 13, 14};      // Zeile
 05: int[] s = {15, 16, 17, 18};   // Spalte
 06:
-07: /* CODEZEILE AUSWÄHLEN */     // Zeilenanzahl der Matrix
-08: /* CODEZEILE AUSWÄHLEN */     // Spaltenanzahl der Matrix
+07: %s     // Zeilenanzahl der Matrix
+08: %s     // Spaltenanzahl der Matrix
 09:
-10: /* 1: Zeile mal Matrix */011: int[] zm = new int[n_sp];
+10: /* 1: Zeile mal Matrix */
+11: int[] zm = new int[n_sp];
 12: for (int j = 0; j < n_sp; j++) {
 13:     zm[j] = 0;
-14:     /* CODEZEILE AUSWÄHLEN */
+14:     %s
 15:         zm[j] = zm[j] + z[i]*m[i][j];
 16: }
 17: /* 2: Matrix mal Spalte */
@@ -57,21 +58,9 @@ task = """ Folgendes Codefragment soll die Multiplikation eines Zeilenvektors mi
 19: for (int i = 0; i < n_ze; i++) {
 20:     ms[i] = 0;
 21:     for (int j = 0; j < n_sp; j++)
-22:         /* CODEZEILE AUSWÄHLEN */
+22:         %s
 23:
 ```
-
-**Zeile 7:**
-%s
-
-**Zeile 8:**
-%s
-
-**Zeile 14:**
-%s
-
-**Zeile 22:**
-%s
 """ % (gap_1, gap_2, gap_3, gap_4)
 
 feedback = """

@@ -29,7 +29,7 @@ class MultipleChoiceQuestion:
 
     def itemmetadata(self, feedback_setting=1):
         subroot = et.Element('qtimetadata')
-        subroot.append(qtimetadatafield('ILIAS_VERSION', '5.1.8 2016-08-03'))
+        subroot.append(qtimetadatafield('ILIAS_VERSION', '5.1.11 2016-10-28'))
         subroot.append(qtimetadatafield('QUESTIONTYPE', self.type))
         subroot.append(qtimetadatafield('AUTHOR', self.author))
         subroot.append(qtimetadatafield('additional_cont_edit_mode', 'default'))

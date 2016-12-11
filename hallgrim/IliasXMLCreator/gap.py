@@ -73,7 +73,7 @@ class GapQuestion:
                 if type(item[0]) == str:
                     f = response_str("gap_{}".format(gap_ident), self.gap_length)
                 if type(item[0]) == tuple:
-                    f = response_num("gap_{}".format(gap_ident), self.gap_length, item[1], item[2])
+                    f = response_num("gap_{}".format(gap_ident), self.gap_length, item[0][1], item[0][2])
                 gap_ident += 1
             flow.append(f)
 
