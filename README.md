@@ -22,7 +22,6 @@ implemented.
 * Add a good description / documentation.
 * Add more functionality (finalize gap, alignment)
 * Make parsers more robust.
-* setup test system in virtual box
 * Create whole test object with questions for direct import. Create two
 versions (one for internal use and one for the test.)
 * add zip support
@@ -37,6 +36,14 @@ variables in a specified format.
 data and assumes unknown properties)
 3. The XML structure for one or multiple questions, readable by Ilias.
 4. An Ilias object packed as .zip file, ready for upload.
+
+### Testing
+
+The tool will ship with a VirtualBox contaning Ilias Versions used in
+production. With `grim.py upload` it is possible to upload these scripts quickly
+and see a how they look like in a working ilias system.
+
+The upload script does not work with the university hosted servers.
 
 ### LaTeX Support
 

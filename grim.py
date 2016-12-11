@@ -27,6 +27,7 @@ from hallgrim.IliasXMLCreator import packer
 from hallgrim.custom_markdown import get_markdown
 from hallgrim.messages import *
 from hallgrim.parser import *
+from hallgrim.uploader import send_script
 
 scaffolding = r'''
 meta = {{
@@ -126,10 +127,24 @@ def parseme():
         default=1,
         metavar='COUNT')
 
+    parser_gen = subparsers.add_parser(
+        "upload", help="Subcommand to upload created xml instances.")
+    parser_gen.add_argument(
+        '--host',
+        help='The hostname of the ilias test implementation',
+        metavar='HOST')
+    parser_gen.add_argument(
+        'script',
+        help='The script that should be uploaded',
+        type=file_exists,
+        metavar='FILE')
+
     args = parser.parse_args()
 
     if args.command == 'gen':
         delegator(args.out, args.input, args.instances)
+    if args.command == 'upload':
+        handle_upload(args.script, args.host)
     if args.command == 'new':
         handle_new_script(args.name, args.type, args.author, args.points)
     if args.command == None:
@@ -201,7 +216,10 @@ def handle_new_script(name, qtype, author, points):
             author, name, qtype, points, choice).strip(), file=new_script)
         info('Generated new script "{}."'.format(new_script.name))
 
+def handle_upload(script_path, hostname):
+    r = send_script(script_path)
+    info("Uploaded %s. Status code looks %s." % (script_path, "good" if r else "bad"))
+
 if __name__ == '__main__':
     markdown = get_markdown()
     parseme()
-    exit("All done. Goodbye.")
