@@ -1,19 +1,19 @@
-##########################################################################
+################################################################################
 #
-# This is the uploader. It simplifies the testing process immensely and  makes
+# This is the uploader. It simplifies the testing process immensely and makes
 # autoILIAS finally obsolete, since this system uses a proper Ilias
 # implementation.
 #
-# The code is straight forward. You need to seed s couple of POST requests
-# in the right order an then the items appear at the right place. Currently
-# works for the Folder 'Sandkasten' of the test environment that ships
-# with hallgrim. Ilias changes often so maybe the urls have to be updated.
+# The code is straight forward. You need to seed s couple of POST requests in
+# the right order an then the items appear at the right place. Currently works
+# for the Folder 'Sandkasten' of the test environment that ships with hallgrim.
+# Ilias changes often so maybe the urls have to be updated.
 #
 # The simplest way was to intercept the html traffic with wireshark.
 #
 # Sadly this script adds some ugly dependencies like requests_toolbelt.
 #
-##########################################################################
+################################################################################
 
 import os
 
