@@ -14,7 +14,7 @@ def xml_print(element, **kwargs):
     import xml.dom.minidom
 
     xml = xml.dom.minidom.parseString(et.tostring(element, encoding='utf8', method='xml')) # or xml.dom.minidom.parseString(xml_string)
-    print( xml.toprettyxml(), **kwargs )
+    print(xml.toprettyxml(), **kwargs)
 
 
 def simple_element(name, text=None, attrib={}):
@@ -147,7 +147,7 @@ def response_choice(ident, answers):
 
 def response_num(ident, columns, _min, _max, numtype='Decimal'):
     response_num = et.Element('response_num', attrib={'ident': ident, 'numtype': numtype, 'rcardinality': 'Single'})
-    render_fib   = et.Element('render_fib', attrib={'columns': columns, 'fibtype': numtype, 'maxnumber': _min, 'minnumber': _max, 'prompt': "Box"})
+    render_fib = et.Element('render_fib', attrib={'columns': str(columns), 'fibtype': numtype, 'maxnumber': _max, 'minnumber': _min, 'prompt': "Box"})
     response_num.append(render_fib)
     return response_num
 

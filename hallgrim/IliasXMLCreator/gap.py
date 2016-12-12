@@ -75,8 +75,6 @@ class GapQuestion:
                     f = response_num("gap_{}".format(gap_ident), self.gap_length, item[0][1], item[0][2])
                 gap_ident += 1
             flow.append(f)
-
-
         return root
 
     ############################################################################
