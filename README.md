@@ -16,6 +16,8 @@ implemented.
 
 - `pip install mistune`
 - `pip install pygments`
+- `pip install requests`
+- `pip install requests_toolbelt`
 
 ### TODO
 
@@ -57,32 +59,28 @@ Hallgrim uses pygments and the customized mistune parser to highlight different
 programming language syntaxes. To highlight a code block just put the language
 name right after the delimiters
 
-````
-```java
-class Car {
-    private float price;
-    private String manufacturer;
-    public void cheeseCake(int withCream) {
-        return () -> ();
+    ```java
+    class Car {
+        private float price;
+        private String manufacturer;
+        public void cheeseCake(int withCream) {
+            return () -> ();
+        }
     }
-}
-```
-````
+    ```
 
 It is not possible to copy code by default, but `_copy` can be appended to the
 language's name if copyable code is desired.
 
-````
-```java_copy
-class Car {
-    private float price;
-    private String manufacturer;
-    public void cheeseCake(int withCream) {
-        return () -> ();
+    ```java_copy
+    class Car {
+        private float price;
+        private String manufacturer;
+        public void cheeseCake(int withCream) {
+            return () -> ();
+        }
     }
-}
-```
-````
+    ```
 
 It is possible to include gaps withing code blocks.
 

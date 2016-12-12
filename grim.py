@@ -34,8 +34,12 @@ from hallgrim.uploader import send_script
 def get_config():
     config = configparser.ConfigParser()
     config.read('config.ini')
+    if not config.sections():
+        error('Could not find config file.')
+        error('Please edit config.sample.ini and move it to config.ini')
+        error('Continue with default values. Script might fail.')
+        config.read('config.sample.ini')
     return config
-
 
 def file_to_module(name):
     return name.rstrip('.py').replace('/', '.')
@@ -66,6 +70,7 @@ def script_is_valid(script, required):
 
 
 def parseme():
+    config = get_config()
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")
 
@@ -87,6 +92,7 @@ def parseme():
         "-a",
         "--author",
         help="Name of the scripts author",
+        default=config['META']['author'],
         metavar='AUTHOR'
     )
     parser_new.add_argument(
@@ -133,7 +139,7 @@ def parseme():
     if args.command == 'gen':
         delegator(args.out, args.input, args.instances)
     if args.command == 'upload':
-        handle_upload(args.script, args.host)
+        handle_upload(args.script, config)
     if args.command == 'new':
         handle_new_script(args.name, args.type, args.author, args.points)
     if args.command == None:
@@ -233,8 +239,6 @@ def handle_new_script(name, qtype, author, points):
     Takes in some meta information from the command line of if not present takes
     it from the config.ini or uses default values.
 
-    TODO: put the configuration before the parser and use as default values
-
     Arguments:
         name {str}     -- name of the script, will also become filename
         qtype {str}    -- question type (choice, gap, alignment)
@@ -242,10 +246,6 @@ def handle_new_script(name, qtype, author, points):
         points {float} -- number of points for the task
     """
     from hallgrim.templates import scaffolding
-    config = get_config()
-
-    if not author:
-        author = config['META']['author']
 
     with open('scripts/' + name + '.py', 'w') as new_script:
         choice = ''
@@ -257,7 +257,7 @@ def handle_new_script(name, qtype, author, points):
         info('Generated new script "{}."'.format(new_script.name))
 
 
-def handle_upload(script_path):
+def handle_upload(script_path, config):
     """ Passes data to the upload script.
 
     The status code should be 500, since ILIAS always replies with that error
@@ -266,8 +266,8 @@ def handle_upload(script_path):
 
     Arguments:
         script_path {str} -- path to the file that should be uploaded
+        config {config object} -- the loaded configuration
     """
-    config = get_config()
     r = send_script(
         script_path,
         config['UPLAODER']['host'],
