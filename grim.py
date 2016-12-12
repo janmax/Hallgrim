@@ -1,6 +1,6 @@
 #!/usr/local/bin/python3
 
-################################################################################
+##########################################################################
 #
 # This script contains the main part of hallgrim and is the only script that
 # needs to be invoked. The steps it takes to generate a task are as follows:
@@ -15,12 +15,13 @@
 # * a finisher compresses data if needed (needs to be implemented, maybe as
 #   separate subparser).
 #
-################################################################################
+##########################################################################
 
 import importlib
 import argparse
 import os
 import sys
+import configparser
 
 # local import
 from hallgrim.IliasXMLCreator import packer
@@ -29,18 +30,11 @@ from hallgrim.messages import *
 from hallgrim.parser import *
 from hallgrim.uploader import send_script
 
-scaffolding = r'''
-meta = {{
-    'author': '{}',
-    'title': '{}',
-    'type': '{}',
-    'points': {},
-}}
 
-task = """ decription """
-{}
-feedback = """ decription """
-'''
+def get_config():
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    return config
 
 
 def file_to_module(name):
@@ -93,7 +87,6 @@ def parseme():
         "-a",
         "--author",
         help="Name of the scripts author",
-        default='ILIAS Author',
         metavar='AUTHOR'
     )
     parser_new.add_argument(
@@ -130,10 +123,6 @@ def parseme():
     parser_gen = subparsers.add_parser(
         "upload", help="Subcommand to upload created xml instances.")
     parser_gen.add_argument(
-        '--host',
-        help='The hostname of the ilias test implementation',
-        metavar='HOST')
-    parser_gen.add_argument(
         'script',
         help='The script that should be uploaded',
         type=file_exists,
@@ -152,6 +141,16 @@ def parseme():
 
 
 def delegator(output, script_list, instances):
+    """
+    It gets a list of filenames and delegates them to the correct handler.
+    Every file that does not end with .py will be ignored. Each script
+    is imported and then passed as module to the handler.
+
+    Arguments:
+        output {filename}  -- where to write the finished XML document
+        script_list {list} -- a list of filenames that contain scripts
+        instances {int}    -- number of instances that should be generated
+    """
     for script_name in filter(lambda a: a.endswith('.py'), script_list):
         script = importlib.import_module(file_to_module(script_name))
         handler = {
@@ -166,6 +165,18 @@ def delegator(output, script_list, instances):
 
 
 def handle_gap_questions(output, script, instances):
+    """ Handles gap questions of all kinds
+
+    A script can contain any mixture of gap, numeric gap and choice gap
+    questions. The data object that is needed by the XML creating scripts
+    is generated and the task itself is handled by the parser. The parser
+    returns the intermediate representation of the task.
+
+    Arguments:
+        output {str}    -- where to write the final file
+        script {module} -- the loaded module that describes the task
+        instances {int} -- number of instances that should be generated
+    """
     script_is_valid(script, required=['meta', 'task', 'feedback'])
     data = {
         'type': type_selector(script.meta['type']),
@@ -186,6 +197,16 @@ def handle_gap_questions(output, script, instances):
 
 
 def handle_choice_questions(output, script, instances):
+    """
+    Handles multiple and single choice questions. The relevant parts of the
+    script are fed into a parser that return the correct intermediate
+    representation for the task. In this case a list of answers.
+
+    Arguments:
+        output {str}    -- where to write the finished XML document
+        script {module} -- the loaded module that describes the task
+        instances {int} -- number of instances that should be generated
+    """
     script_is_valid(script, required=['meta', 'task', 'choices', 'feedback'])
     data = {
         'type': type_selector(script.meta['type']),
@@ -207,6 +228,25 @@ def handle_choice_questions(output, script, instances):
 
 
 def handle_new_script(name, qtype, author, points):
+    """ Creates a new script file.
+
+    Takes in some meta information from the command line of if not present takes
+    it from the config.ini or uses default values.
+
+    TODO: put the configuration before the parser and use as default values
+
+    Arguments:
+        name {str}     -- name of the script, will also become filename
+        qtype {str}    -- question type (choice, gap, alignment)
+        author {str}   -- the author of the script
+        points {float} -- number of points for the task
+    """
+    from hallgrim.templates import scaffolding
+    config = get_config()
+
+    if not author:
+        author = config['META']['author']
+
     with open('scripts/' + name + '.py', 'w') as new_script:
         choice = ''
         if qtype in ['multiple choice', 'single choice']:
@@ -216,9 +256,27 @@ def handle_new_script(name, qtype, author, points):
             author, name, qtype, points, choice).strip(), file=new_script)
         info('Generated new script "{}."'.format(new_script.name))
 
-def handle_upload(script_path, hostname):
-    r = send_script(script_path)
-    info("Uploaded %s. Status code looks %s." % (script_path, "good" if r else "bad"))
+
+def handle_upload(script_path):
+    """ Passes data to the upload script.
+
+    The status code should be 500, since ILIAS always replies with that error
+    code after an upload is confirmed. If anything else the script will say
+    the status code was bad.
+
+    Arguments:
+        script_path {str} -- path to the file that should be uploaded
+    """
+    config = get_config()
+    r = send_script(
+        script_path,
+        config['UPLAODER']['host'],
+        config['UPLAODER']['user'],
+        config['UPLAODER']['pass'],
+        config['UPLAODER']['rtoken'],
+    )
+    info("Uploaded %s. Status code looks %s." %
+         (script_path, "good" if r else "bad"))
 
 if __name__ == '__main__':
     markdown = get_markdown()

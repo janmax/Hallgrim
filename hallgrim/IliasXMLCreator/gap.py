@@ -10,15 +10,14 @@ def xml_print(element, **kwargs):
 
 
 ###
-# Solution 1
-# ['text', 'text', 'text']
-# [('gap_solution', points), ..., (['one', 'two', 'three'], points)]
 #
+# Type of first item in gap tuple determines the gap type. gap might be changed
+# to set
 # str : str_gap
 # list : choice_gap
 # tuple : num_gap (x, min, max)
 #
-# Solution 2
+# Format of gap_list
 # ['text', ('gap_solution', points), ('gap_solution', points), 'text', ...]
 #
 ###
