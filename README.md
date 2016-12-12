@@ -8,10 +8,6 @@ can be generated also in parametrized form.
 
 Example scripts can be found in `scripts/examples/`.
 
-A first version of the tool that relied on autoilias is still in the repository
-(see `generator.py`). It will be removed as soon as the necessary features are
-implemented.
-
 ### Dependencies
 
 - `pip install mistune`
@@ -68,6 +64,16 @@ name right after the delimiters
         }
     }
     ```
+
+```java
+class Car {
+    private float price;
+    private String manufacturer;
+    public void cheeseCake(int withCream) {
+        return () -> ();
+    }
+}
+```
 
 It is not possible to copy code by default, but `_copy` can be appended to the
 language's name if copyable code is desired.
