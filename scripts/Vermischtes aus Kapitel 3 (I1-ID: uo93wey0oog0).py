@@ -19,30 +19,6 @@ choices = """
 """
 
 feedback = """
-
-<style type="text/css" scoped>
-table, caption, tbody, tfoot, thead, tr, th, td {
-  margin: 1cm;
-  padding: 5px;
-  border: 1px solid black;
-  font-size: 100%;
-  font: inherit;
-  vertical-align: baseline;
-}
-
-tr:nth-child(even){background-color: #f2f2f2}
-tr:hover {background-color: #f5f5f5}
-
-th {
-    background-color: #4CAF50;
-}
-
-table {
-  border-collapse: collapse;
-  border-spacing: 10px;
-}
-</style>
-
 | Aussage                                                                                                 |  Wert   |   Begründung                                                                                                                                                                                                                                                                                                         |
 |---------------------------------------------------------------------------------------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Formalparameter sind lokale Variablen.                                                                  | TRUE    |  Die im Methodenkopf definierten Parameter heißen auch Formalparameter und werden innerhalb der Methode als Variable gebraucht. TatsÃ¤chliche Parameter sind die im Programmablauf Ã¼bergebenen Werte oder Referenzen.                                                                                               |

@@ -24,11 +24,11 @@ from lxml import html
 __all__ = ['send_script']
 
 # static data
-host = "http://192.168.1.2/"
+host = "http://localhost:8000/"
 login = {"username" : "root", "password" : "homer", "cmd[showLogin]" : "Login"}
-upload_url = host + "ilias/ilias.php?ref_id=65&cmd=post&cmdClass=ilobjquestionpoolgui&cmdNode=26:gb&baseClass=ilRepositoryGUI&fallbackCmd=upload&rtoken=fd2f3337a6d4ae0689b5163d6af186a9"
-import_url = host + "ilias/ilias.php?ref_id=65&cmd=post&cmdClass=ilobjquestionpoolgui&cmdNode=26:gb&baseClass=ilRepositoryGUI&fallbackCmd=questions&rtoken=fd2f3337a6d4ae0689b5163d6af186a9"
-confirm_url = host + "ilias/ilias.php?ref_id=65&cmd=post&cmdClass=ilobjquestionpoolgui&cmdNode=26:gb&baseClass=ilRepositoryGUI&rtoken=fd2f3337a6d4ae0689b5163d6af186a9"
+upload_url = host + "ilias/ilias.php?ref_id=65&cmd=post&cmdClass=ilobjquestionpoolgui&cmdNode=26:gb&baseClass=ilRepositoryGUI&fallbackCmd=upload&rtoken=c13456ec3d71dc657e19fb826750f676"
+import_url = host + "ilias/ilias.php?ref_id=65&cmd=post&cmdClass=ilobjquestionpoolgui&cmdNode=26:gb&baseClass=ilRepositoryGUI&fallbackCmd=questions&rtoken=c13456ec3d71dc657e19fb826750f676"
+confirm_url = host + "ilias/ilias.php?ref_id=65&cmd=post&cmdClass=ilobjquestionpoolgui&cmdNode=26:gb&baseClass=ilRepositoryGUI&rtoken=c13456ec3d71dc657e19fb826750f676"
 
 import_data = {
     "cmd[importQuestions]" : "Import",
