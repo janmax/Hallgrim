@@ -1,19 +1,29 @@
 # Hallgrim - an ILIAS task generator in Python
 
+## Installation
+
+```
+git clone https://gitlab.gwdg.de/j.michal/ilias-generator.git
+cd ilias-generator
+pip install -e .
+```
+
 ## Usage
 
-Invoke the script with `python3 grim.py -h` in order to see usage. Currently
-many features are not yet implemented. Single and Multiple Choice questions
-can be generated also in parametrized form.
+After the install just invoke `hallgrim -h` to see usage. The directory hallgrim
+is invoked in, should contain a `config.ini`.
 
-Example scripts can be found in `scripts/examples/`.
+Example scripts can be found [in a seperate repository](https://gitlab.gwdg.de/j.michal/ilias-scripts).
 
 ### Dependencies
 
-- `pip install mistune`
-- `pip install pygments`
-- `pip install requests`
-- `pip install requests_toolbelt`
+`pip` will try to install them automatically. If you can figure out how to
+replace requests with the native urllib3 - you are welcome to help.
+
+- `mistune`
+- `pygments`
+- `requests`
+- `requests_toolbelt`
 
 ### TODO
 
