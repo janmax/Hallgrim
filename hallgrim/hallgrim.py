@@ -42,11 +42,18 @@ def get_config():
         error('Could not find config file.')
         error('Please edit config.sample.ini and move it to config.ini')
         error('Continue with default values. Script might fail.')
-        config['META'] = {'author' : '__default__'}
+        config['META'] = {'author': '__default__'}
     return config
+
 
 def file_to_module(name):
     return name.rstrip('.py').replace('/', '.')
+
+
+def look_for_output():
+    if not os.path.exists('output'):
+        info('Created directory "output/"')
+        os.makedirs('output')
 
 
 def type_selector(type):
@@ -141,6 +148,7 @@ def parseme():
     args = parser.parse_args()
 
     if args.command == 'gen':
+        look_for_output()
         delegator(args.out, args.input, args.instances)
     if args.command == 'upload':
         handle_upload(args.script, config)
@@ -163,7 +171,7 @@ def delegator(output, script_list, instances):
     """
     for script_name in filter(lambda a: a.endswith('.py'), script_list):
         module_name = os.path.basename(script_name)
-        spec   = importlib.util.spec_from_file_location(module_name, script_name)
+        spec = importlib.util.spec_from_file_location(module_name, script_name)
         script = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(script)
         handler = {
@@ -252,13 +260,20 @@ def handle_new_script(name, qtype, author, points):
         author {str}   -- the author of the script
         points {float} -- number of points for the task
     """
-    with open('scripts/' + name + '.py', 'w') as new_script:
+    head, tail = os.path.split(name)
+    if not os.path.exists(head):
+        os.makedirs(head)
+    if not tail.endswith('.py'):
+        base = tail
+    else:
+        base = tail.rstrip('.py')
+    with open(os.path.join(head, base + '.py'), 'x') as new_script:
         choice = ''
         if qtype in ['multiple choice', 'single choice']:
             choice = '\nchoices = """\n[X] A\n[ ] B\n[ ] C\n[X] D\n"""\n'
 
         print(scaffolding.format(
-            author, name, qtype, points, choice).strip(), file=new_script)
+            author, base, qtype, points, choice).strip(), file=new_script)
         info('Generated new script "{}."'.format(new_script.name))
 
 
