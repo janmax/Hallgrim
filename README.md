@@ -1,6 +1,6 @@
 # Hallgrim - an ILIAS task generator in Python
 
-## Installation
+### Installation
 
 ```
 git clone https://gitlab.gwdg.de/j.michal/ilias-generator.git
@@ -8,7 +8,7 @@ cd ilias-generator
 pip install -e .
 ```
 
-## Usage
+### Usage
 
 After the install just invoke `hallgrim -h` to see usage. The directory hallgrim
 is invoked in, should contain a `config.ini`.
@@ -31,7 +31,7 @@ replace requests with the native urllib3 - you are welcome to help.
 * Add more functionality (multiple answers per gap, alignment)
 * Make parsers more robust.
 * Create whole test object with questions for direct import. Create two
-versions (one for internal use and one for the test.)
+  versions (one for internal use and one for the test.)
 * add zip support
 
 ### Notes
@@ -39,9 +39,9 @@ versions (one for internal use and one for the test.)
 The final data is produced in three steps:
 
 1. A python script file with predefined structure that has to export certain
-variables in a specified format.
+   variables in a specified format.
 2. An intermediate representation (probably an array that contains relevant
-data and assumes unknown properties)
+   data and assumes unknown properties)
 3. The XML structure for one or multiple questions, readable by Ilias.
 4. An Ilias object packed as .zip file, ready for upload.
 
