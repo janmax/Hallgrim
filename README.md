@@ -28,7 +28,7 @@ replace requests with the native urllib3 - you are welcome to help.
 ### TODO
 
 * Add a more description / documentation.
-* Add more functionality (numeric gap, multiple answers per gap, alignment)
+* Add more functionality (multiple answers per gap, alignment)
 * Make parsers more robust.
 * Create whole test object with questions for direct import. Create two
 versions (one for internal use and one for the test.)

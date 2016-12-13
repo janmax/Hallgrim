@@ -20,7 +20,6 @@
 import importlib.util
 import argparse
 import os
-import sys
 import configparser
 
 # local import
@@ -140,8 +139,9 @@ def parseme():
     parser_gen = subparsers.add_parser(
         "upload", help="Subcommand to upload created xml instances.")
     parser_gen.add_argument(
-        'script',
-        help='The script that should be uploaded',
+        'script_list',
+        help='The scripts that should be uploaded',
+        nargs='+',
         type=file_exists,
         metavar='FILE')
 
@@ -151,7 +151,7 @@ def parseme():
         look_for_output()
         delegator(args.out, args.input, args.instances)
     if args.command == 'upload':
-        handle_upload(args.script, config)
+        handle_upload(args.script_list, config)
     if args.command == 'new':
         handle_new_script(args.name, args.type, args.author, args.points)
     if args.command == None:
@@ -277,7 +277,7 @@ def handle_new_script(name, qtype, author, points):
         info('Generated new script "{}."'.format(new_script.name))
 
 
-def handle_upload(script_path, config):
+def handle_upload(script_list, config):
     """ Passes data to the upload script.
 
     The status code should be 500, since ILIAS always replies with that error
@@ -288,12 +288,13 @@ def handle_upload(script_path, config):
         script_path {str} -- path to the file that should be uploaded
         config {config object} -- the loaded configuration
     """
-    r = send_script(
-        script_path,
-        config['UPLAODER']['host'],
-        config['UPLAODER']['user'],
-        config['UPLAODER']['pass'],
-        config['UPLAODER']['rtoken'],
-    )
-    info("Uploaded %s. Status code looks %s." %
-         (script_path, "good" if r else "bad"))
+    for script in script_list:
+        r = send_script(
+            script,
+            config['UPLAODER']['host'],
+            config['UPLAODER']['user'],
+            config['UPLAODER']['pass'],
+            config['UPLAODER']['rtoken'],
+        )
+        info("Uploaded %s. Status code looks %s." %
+            (script, "good" if r else "bad"))
