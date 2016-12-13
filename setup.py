@@ -14,7 +14,7 @@ setup(
     author_email='mail-github@jmx.io',
     url='https://gitlab.gwdg.de/j.michal/ilias-generator',
     license='MIT',
-    scripts=['hallgrim/bin/hallgrim'],
+    scripts=['bin/hallgrim'],
     install_requires=['mistune', 'pygments', 'requests', 'requests_toolbelt'],
     packages=['hallgrim']
 )

@@ -272,8 +272,7 @@ def handle_new_script(name, qtype, author, points):
         if qtype in ['multiple choice', 'single choice']:
             choice = '\nchoices = """\n[X] A\n[ ] B\n[ ] C\n[X] D\n"""\n'
 
-        print(scaffolding.format(
-            author, base, qtype, points, choice).strip(), file=new_script)
+        print(scaffolding.format(author, base, qtype, points, choice).strip(), file=new_script)
         info('Generated new script "{}."'.format(new_script.name))
 
 
