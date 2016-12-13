@@ -1,8 +1,7 @@
 import re
+import collections
 
-from hallgrim.custom_markdown import get_markdown
-from collections import deque
-from pprint import pprint
+from .custom_markdown import get_markdown
 
 
 def choice_parser(raw_choices, points):
@@ -23,8 +22,9 @@ def choice_parser(raw_choices, points):
         markdown(text),
         True if mark != ' ' else False,
         float(mark) if mark not in ' X' else points)
-    for mark, _, text in parse]
+        for mark, _, text in parse]
     return final
+
 
 def gap_parser(task):
     markdown = get_markdown()
@@ -32,19 +32,21 @@ def gap_parser(task):
     # '\[gap\]([\w\W]+?)\[\/gap\]'
     # '\[select\]([\w\W]+?)\[\/select\]'
     # '\[numeric\]([\w\W]+?)\[\/numeric\]'
-    # We match against one big regex that consists of three smaller ones (see above)
+    # We match against one big regex that consists of three smaller ones (see
+    # above)
     _all = re.compile('(\[numeric\((([0-9]*[.])?[0-9]+)P\)\]([\w\W]+?)(\[\/numeric\])|(\[select\])([\w\W]+?)\[\/select\]|\[gap\((([0-9]*[.])?[0-9]+)P\)\]([\w\W]+?)(\[\/gap\]))', re.MULTILINE)
     for m in re.finditer(_all, task):
         ('[gap]' in m.groups())
 
-    gaps = deque()
+    gaps = collections.deque()
     for m in re.finditer(_all, task):
         if '[select]' in m.groups():
             match = m.group(7)
             lines = match.strip().split('\n')
             regex = re.compile('\[(([0-9]*[.])?[0-9]+| )\]\s?([\w\W]+)', re.MULTILINE)
             parse = [re.search(regex, line).groups() for line in lines]
-            gaps.append(([(text, float(points) if not points == ' ' else 0) for points, _, text in parse], 999))
+            gaps.append(([(text, float(points) if not points == ' ' else 0)
+                          for points, _, text in parse], 999))
 
         if '[/gap]' in m.groups():
             match = m.group(10)
@@ -63,9 +65,9 @@ def gap_parser(task):
 
     source = re.sub(_all, 'AISBLAKJSD', task)
     source = markdown(source)
-    texts = deque(source.split('AISBLAKJSD'))
+    texts = collections.deque(source.split('AISBLAKJSD'))
 
-    final = deque()
+    final = collections.deque()
     for _ in range(min(len(texts), len(gaps))):
         text = texts.popleft()
         if text != "":

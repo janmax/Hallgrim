@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 output/*
+hallgrim.egg-info/*
 notes.html
 README.html
 .DS_Store

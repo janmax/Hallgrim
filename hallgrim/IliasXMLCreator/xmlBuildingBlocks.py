@@ -150,7 +150,3 @@ def response_num(ident, columns, _min, _max, numtype='Decimal'):
     render_fib = et.Element('render_fib', attrib={'columns': str(columns), 'fibtype': numtype, 'maxnumber': _max, 'minnumber': _min, 'prompt': "Box"})
     response_num.append(render_fib)
     return response_num
-
-
-# xml_print(response_choice(2, ['a', 'b', 'c']))
-

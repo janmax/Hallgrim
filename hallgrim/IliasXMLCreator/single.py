@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 
-from hallgrim.IliasXMLCreator.multi import *
+from .multi import *
 
 
 class SingleChoiceQuestion(MultipleChoiceQuestion):

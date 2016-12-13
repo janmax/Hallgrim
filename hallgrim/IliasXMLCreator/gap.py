@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 
-from hallgrim.IliasXMLCreator.xmlBuildingBlocks import *
+from .xmlBuildingBlocks import *
 
 def xml_print(element, **kwargs):
     import xml.dom.minidom

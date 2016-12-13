@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/env python3
 
 ##########################################################################
 #
@@ -17,18 +17,22 @@
 #
 ##########################################################################
 
-import importlib
+import importlib.util
 import argparse
 import os
 import sys
 import configparser
 
 # local import
-from hallgrim.IliasXMLCreator import packer
-from hallgrim.custom_markdown import get_markdown
-from hallgrim.messages import *
-from hallgrim.parser import *
-from hallgrim.uploader import send_script
+from .IliasXMLCreator import packer
+from .custom_markdown import get_markdown
+from .messages import *
+from .parser import choice_parser, gap_parser
+from .uploader import send_script
+from .templates import scaffolding
+
+# set markdown
+markdown = get_markdown()
 
 
 def get_config():
@@ -38,7 +42,7 @@ def get_config():
         error('Could not find config file.')
         error('Please edit config.sample.ini and move it to config.ini')
         error('Continue with default values. Script might fail.')
-        config.read('config.sample.ini')
+        config['META'] = {'author' : '__default__'}
     return config
 
 def file_to_module(name):
@@ -158,7 +162,10 @@ def delegator(output, script_list, instances):
         instances {int}    -- number of instances that should be generated
     """
     for script_name in filter(lambda a: a.endswith('.py'), script_list):
-        script = importlib.import_module(file_to_module(script_name))
+        module_name = os.path.basename(script_name)
+        spec   = importlib.util.spec_from_file_location(module_name, script_name)
+        script = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(script)
         handler = {
             'gap': handle_gap_questions,
             'single': handle_choice_questions,
@@ -245,8 +252,6 @@ def handle_new_script(name, qtype, author, points):
         author {str}   -- the author of the script
         points {float} -- number of points for the task
     """
-    from hallgrim.templates import scaffolding
-
     with open('scripts/' + name + '.py', 'w') as new_script:
         choice = ''
         if qtype in ['multiple choice', 'single choice']:
@@ -277,7 +282,3 @@ def handle_upload(script_path, config):
     )
     info("Uploaded %s. Status code looks %s." %
          (script_path, "good" if r else "bad"))
-
-if __name__ == '__main__':
-    markdown = get_markdown()
-    parseme()

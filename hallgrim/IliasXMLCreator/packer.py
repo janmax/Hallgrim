@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 
-from hallgrim.IliasXMLCreator import multi, single, gap
+from . import multi, single, gap
 
 def create_xml_tree(item_list):
     root = et.Element('questestinterop')

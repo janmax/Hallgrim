@@ -1,0 +1,4 @@
+import hallgrim
+
+if __name__ == '__main__':
+    hallgrim.parseme()
