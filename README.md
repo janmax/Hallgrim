@@ -15,24 +15,13 @@ is invoked in, should contain a `config.ini`.
 
 Example scripts can be found [in a seperate repository](https://gitlab.gwdg.de/j.michal/ilias-scripts).
 
-### Dependencies
-
-`pip` will try to install them automatically. If you can figure out how to
-replace requests with the native urllib3 - you are welcome to help.
-
-- `mistune`
-- `pygments`
-- `requests`
-- `requests_toolbelt`
-
 ### TODO
 
-* Add a more description / documentation.
-* Add more functionality (multiple answers per gap, alignment)
-* Make parsers more robust.
-* Create whole test object with questions for direct import. Create two
-  versions (one for internal use and one for the test.)
+* add a more description / documentation.
+* add more functionality (multiple answers per gap, alignment)
+* create whole test objects with questions for direct import.
 * add zip support
+* add unittests
 
 ### Notes
 
@@ -85,7 +74,7 @@ class Car {
 }
 ```
 
-It is not possible to copy code by default, but `_copy` can be appended to the
+By default it is not possible to copy code, but `_copy` can be appended to the
 language's name if copyable code is desired.
 
     ```java_copy
@@ -98,5 +87,5 @@ language's name if copyable code is desired.
     }
     ```
 
-It is possible to include gaps withing code blocks.
+It is possible to include gaps within code blocks.
 

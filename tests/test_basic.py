@@ -11,6 +11,5 @@ class AdvancedTestSuite(unittest.TestCase):
         markdown = hallgrim.custom_markdown.get_markdown()
         assert markdown("** BOLD **") == "<p><strong> BOLD </strong></p>\n"
 
-
 if __name__ == '__main__':
     unittest.main()

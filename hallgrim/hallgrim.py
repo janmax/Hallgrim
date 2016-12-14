@@ -45,10 +45,6 @@ def get_config():
     return config
 
 
-def file_to_module(name):
-    return name.rstrip('.py').replace('/', '.')
-
-
 def look_for_output():
     if not os.path.exists('output'):
         info('Created directory "output/"')
@@ -69,6 +65,13 @@ def file_exists(path):
         msg = 'The script "{}" does not exist.'.format(path)
         raise argparse.ArgumentTypeError(msg)
     return path
+
+
+def load_script(script_name):
+    module_name = os.path.basename(script_name)
+    spec = importlib.util.spec_from_file_location(module_name, script_name)
+    script = importlib.util.module_from_spec(spec)
+    return script, spec
 
 
 def script_is_valid(script, required):
@@ -108,7 +111,7 @@ def parseme():
     parser_new.add_argument(
         "-p",
         "--points",
-        help='Points given for correct answer (different behavior for different questions)',
+        help='Points given for correct answer (different behaviour for different questions)',
         type=float,
         default=0.0,
         metavar='POINTS',
@@ -129,12 +132,10 @@ def parseme():
         type=file_exists,
         metavar='FILE')
     parser_gen.add_argument(
-        '-i',
-        '--instances',
-        help='How many instances should be produced (Only for parametrized questions).',
-        type=int,
-        default=1,
-        metavar='COUNT')
+        '-p',
+        '--parametrized',
+        help='Print the number of parametrized instances specified in question.',
+        action='store_true')
 
     parser_gen = subparsers.add_parser(
         "upload", help="Subcommand to upload created xml instances.")
@@ -149,7 +150,7 @@ def parseme():
 
     if args.command == 'gen':
         look_for_output()
-        delegator(args.out, args.input, args.instances)
+        delegator(args.out, args.input, args.parametrized)
     if args.command == 'upload':
         handle_upload(args.script_list, config)
     if args.command == 'new':
@@ -158,7 +159,7 @@ def parseme():
         parser.print_help()
 
 
-def delegator(output, script_list, instances):
+def delegator(output, script_list, parametrized):
     """
     It gets a list of filenames and delegates them to the correct handler.
     Every file that does not end with .py will be ignored. Each script
@@ -167,12 +168,10 @@ def delegator(output, script_list, instances):
     Arguments:
         output {filename}  -- where to write the finished XML document
         script_list {list} -- a list of filenames that contain scripts
-        instances {int}    -- number of instances that should be generated
+        parametrized {boolean}  -- output all instances (no test mode)
     """
     for script_name in filter(lambda a: a.endswith('.py'), script_list):
-        module_name = os.path.basename(script_name)
-        spec = importlib.util.spec_from_file_location(module_name, script_name)
-        script = importlib.util.module_from_spec(spec)
+        script, spec = load_script(script_name)
         spec.loader.exec_module(script)
         handler = {
             'gap': handle_gap_questions,
@@ -182,11 +181,26 @@ def delegator(output, script_list, instances):
             'multiple choice': handle_choice_questions
         }[script.meta['type']]
 
-        handler(output, script, instances)
+        if not output:
+            output = os.path.join('output', script.meta['title']) + '.xml'
+
+        if script.meta['instances'] and parametrized:
+            instances = script.meta['instances']
+        else:
+            instances = 1
+
+        final = packer.compile(
+            handler(script, spec, instances),
+            type_selector(script.meta['type'])
+        )
+
+        packer.print(final, output)
+        info('Processed "{}" and'.format(script.__name__))
+        info('wrote xml "{}"'.format(output), notag=True)
 
 
-def handle_gap_questions(output, script, instances):
-    """ Handles gap questions of all kinds
+def handle_gap_questions(script, spec, instances):
+    """ a generator for all kinds of gap questions
 
     A script can contain any mixture of gap, numeric gap and choice gap
     questions. The data object that is needed by the XML creating scripts
@@ -194,58 +208,51 @@ def handle_gap_questions(output, script, instances):
     returns the intermediate representation of the task.
 
     Arguments:
-        output {str}    -- where to write the final file
-        script {module} -- the loaded module that describes the task
+        script {module} -- the loaded module
+        spec {object}   -- the specification of the module
         instances {int} -- number of instances that should be generated
     """
     script_is_valid(script, required=['meta', 'task', 'feedback'])
-    data = {
-        'type': type_selector(script.meta['type']),
-        'description': "_description",
-        'gap_list': gap_parser(script.task),
-        'author': script.meta['author'],
-        'title': script.meta['title'],
-        'shuffle': script.meta['shuffle'] if 'shuffle' in script.meta else True,
-        'feedback': markdown(script.feedback),
-        'gap_length': script.meta['gap_length'] if 'gap_length' in script.meta else 20,
-    }
-
-    output = os.path.join(
-        'output', script.meta['title']) + '.xml' if not output else output
-    packer.convert_and_print(data, output, instances)
-    info('Processed "{}" and'.format(script.__name__))
-    info('wrote xml "{}"'.format(output), notag=True)
+    for _ in range(instances):
+        spec.loader.exec_module(script) # reload the script to get new instance
+        yield {
+            'type': type_selector(script.meta['type']),
+            'description': "_description",
+            'gap_list': gap_parser(script.task),
+            'author': script.meta['author'],
+            'title': script.meta['title'],
+            'shuffle': script.meta['shuffle'] if 'shuffle' in script.meta else True,
+            'feedback': markdown(script.feedback),
+            'gap_length': script.meta['gap_length'] if 'gap_length' in script.meta else 20,
+        }
 
 
-def handle_choice_questions(output, script, instances):
-    """
+def handle_choice_questions(script, spec, instances):
+    """ a generator for choice questions
+
     Handles multiple and single choice questions. The relevant parts of the
     script are fed into a parser that return the correct intermediate
     representation for the task. In this case a list of answers.
 
     Arguments:
-        output {str}    -- where to write the finished XML document
-        script {module} -- the loaded module that describes the task
+        script {module} -- the loaded module
+        spec {object}   -- the specification of the module
         instances {int} -- number of instances that should be generated
     """
     script_is_valid(script, required=['meta', 'task', 'choices', 'feedback'])
-    data = {
-        'type': type_selector(script.meta['type']),
-        'description': "_description",
-        'question_text': markdown(script.task),
-        'author': script.meta['author'],
-        'title': script.meta['title'],
-        'maxattempts': '0',
-        'shuffle': script.meta['shuffle'] if 'shuffle' in script.meta else True,
-        'questions': choice_parser(script.choices, script.meta['points']),
-        'feedback': markdown(script.feedback)
-    }
-
-    output = os.path.join(
-        'output', script.meta['title']) + '.xml' if not output else output
-    packer.convert_and_print(data, output, instances)
-    info('Processed "{}" and'.format(script.__name__))
-    info('wrote xml "{}"'.format(output), notag=True)
+    for _ in range(instances):
+        spec.loader.exec_module(script) # reload the script to get new instance
+        yield {
+            'type': type_selector(script.meta['type']),
+            'description': "_description",
+            'question_text': markdown(script.task),
+            'author': script.meta['author'],
+            'title': script.meta['title'],
+            'maxattempts': '0',
+            'shuffle': script.meta['shuffle'] if 'shuffle' in script.meta else True,
+            'questions': choice_parser(script.choices, script.meta['points']),
+            'feedback': markdown(script.feedback)
+        }
 
 
 def handle_new_script(name, qtype, author, points):
