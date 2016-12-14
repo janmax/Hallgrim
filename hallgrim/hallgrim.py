@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 ##########################################################################
 #
 # This script contains the main part of hallgrim and is the only script that
