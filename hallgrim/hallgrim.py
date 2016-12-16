@@ -23,22 +23,23 @@ import configparser
 # local import
 from .IliasXMLCreator import packer
 from .custom_markdown import get_markdown
-from .messages import *
+from .messages import warn, info, error, abort
 from .parser import choice_parser, gap_parser
 from .uploader import send_script
 from .templates import scaffolding
 
+__all__ = ['parseme']
+
 # set markdown
 markdown = get_markdown()
-
 
 def get_config():
     config = configparser.ConfigParser()
     config.read('config.ini')
     if not config.sections():
-        error('Could not find config file.')
-        error('Please edit config.sample.ini and move it to config.ini')
-        error('Continue with default values. Script might fail.')
+        warn('Could not find config file.')
+        warn('Please edit config.sample.ini and move it to config.ini')
+        info('Continue with default values. Script might fail.')
         config['META'] = {'author': '__default__'}
     return config
 
@@ -192,7 +193,7 @@ def delegator(output, script_list, parametrized):
             type_selector(script.meta['type'])
         )
 
-        packer.print(final, output)
+        packer.print_xml(final, output)
         info('Processed "{}" and'.format(script.__name__))
         info('wrote xml "{}"'.format(output), notag=True)
 
@@ -278,7 +279,7 @@ def handle_new_script(name, qtype, author, points):
             choice = '\nchoices = """\n[X] A\n[ ] B\n[ ] C\n[X] D\n"""\n'
 
         print(scaffolding.format(author, base, qtype, points, choice).strip(), file=new_script)
-        info('Generated new script "{}."'.format(new_script.name))
+        info('Generated new script "%s."' % new_script.name)
 
 
 def handle_upload(script_list, config):

@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup
-from hallgrim.custom_markdown import get_markdown
-
-with open('README.md') as f:
-    readme = get_markdown()(f.read())
 
 long_description = """
 The final data is produced in three steps:
@@ -17,7 +13,7 @@ The final data is produced in three steps:
 
 setup(
     name='hallgrim',
-    version='0.1.3',
+    version='0.2.3',
     description='A script generator for the ILIAS platform',
     long_description=long_description,
     author='Jan Maximilian Michal',
@@ -26,6 +22,9 @@ setup(
     download_url = 'https://gitlab.gwdg.de/j.michal/ilias-generator/repository/archive.tar.gz?ref=0.1',
     license='MIT',
     scripts=['bin/hallgrim'],
-    install_requires=['mistune', 'pygments', 'requests', 'requests_toolbelt'],
-    packages=['hallgrim']
+    install_requires=['mistune>=0.7', 'pygments>=2', 'requests>=2.8', 'requests_toolbelt>=0.6'],
+    packages=[
+        'hallgrim',
+        'hallgrim.IliasXMLCreator'
+    ]
 )

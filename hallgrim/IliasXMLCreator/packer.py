@@ -2,6 +2,7 @@ import xml.etree.ElementTree as et
 
 from . import multi, single, gap
 
+__all__ = ['compile', 'print_xml']
 
 def create_xml_tree(item_list):
     root = et.Element('questestinterop')
@@ -34,7 +35,7 @@ def compile(data_gen, script_type):
     return create_xml_tree(item_list)
 
 
-def print(tree, file):
+def print_xml(tree, file):
     """ Only a wrapper for the print function
 
     Arguments:
