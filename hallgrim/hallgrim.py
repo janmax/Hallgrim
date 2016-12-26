@@ -24,7 +24,7 @@ import configparser
 from .IliasXMLCreator import packer
 from .custom_markdown import get_markdown
 from .messages import warn, info, error, abort
-from .parser import choice_parser, gap_parser
+from .parser import choice_parser, gap_parser, order_parser
 from .uploader import send_script
 from .templates import scaffolding
 
@@ -57,6 +57,8 @@ def type_selector(type):
         return 'SINGLE CHOICE QUESTION'
     if 'gap' in type:
         return 'CLOZE QUESTION'
+    if 'order' in type:
+        return 'ORDERING QUESTION'
 
 
 def file_exists(path):
@@ -180,7 +182,8 @@ def delegator(output, script_list, parametrized):
             'single': handle_choice_questions,
             'single choice': handle_choice_questions,
             'multi': handle_choice_questions,
-            'multiple choice': handle_choice_questions
+            'multiple choice': handle_choice_questions,
+            'order': handle_order_questions,
         }[script.meta['type']]
 
         if not output:
@@ -254,6 +257,22 @@ def handle_choice_questions(script, spec, instances):
             'shuffle': script.meta['shuffle'] if 'shuffle' in script.meta else True,
             'questions': choice_parser(script.choices, script.meta['points']),
             'feedback': markdown(script.feedback)
+        }
+
+
+def handle_order_questions(script, spec, instances):
+    script_is_valid(script, required=['meta', 'task', 'order', 'feedback'])
+    for _ in range(instances):
+        spec.loader.exec_module(script) # reload the script to get new instance
+        yield {
+            'type': type_selector(script.meta['type']),
+            'description': "_description",
+            'question_text': markdown(script.task),
+            'author': script.meta['author'],
+            'title': script.meta['title'],
+            'order': order_parser(script.order),
+            'points': script.meta['points'],
+            'feedback': markdown(script.feedback),
         }
 
 

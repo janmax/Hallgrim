@@ -79,3 +79,6 @@ def gap_parser(task):
     final.appendleft(markdown("### Aufgabenstellung"))
 
     return final
+
+def order_parser(order_str):
+    return [field.strip() for field in order_str.strip().split('--') if field]

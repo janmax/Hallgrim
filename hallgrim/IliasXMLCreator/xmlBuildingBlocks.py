@@ -156,3 +156,31 @@ def response_num(ident, columns, _min, _max, numtype='Decimal'):
     render_fib = et.Element('render_fib', attrib={'columns': str(columns), 'fibtype': numtype, 'maxnumber': _max, 'minnumber': _min, 'prompt': "Box"})
     response_num.append(render_fib)
     return response_num
+
+
+### order specific #############################################################
+def respcondition_order(index, points):
+    root = et.Element('respcondition', attrib={'continue': 'Yes'})
+    conditionvar = et.Element('conditionvar')
+    varequal = simple_element(
+        'varequal',
+        text=str(index),
+        attrib={'respident': "OQT", 'index': str(index)}
+    )
+
+    setvar = simple_element(
+        'setvar',
+        text=str(points),
+        attrib={'action': 'Add'}
+    )
+
+    displayfeedback = et.Element(
+        'displayfeedback',
+        attrib={'feedbacktype': 'Response', 'linkrefid': 'link_%d' % index}
+    )
+
+    conditionvar.append(varequal)
+    root.append(conditionvar)
+    root.append(setvar)
+    root.append(displayfeedback)
+    return root
