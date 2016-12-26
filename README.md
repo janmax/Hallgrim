@@ -17,8 +17,8 @@ Example scripts can be found [in a seperate repository](https://gitlab.gwdg.de/j
 
 ### TODO
 
-* add a more description / documentation.
-* add more functionality (multiple answers per gap, alignment, free)
+* add more description / documentation.
+* add more functionality (free, file upload)
 * create whole test objects with questions for direct import.
 * add zip support
 * add unittests

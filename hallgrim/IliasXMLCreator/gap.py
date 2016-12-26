@@ -2,13 +2,6 @@ import xml.etree.ElementTree as et
 
 from .xmlBuildingBlocks import *
 
-def xml_print(element, **kwargs):
-    import xml.dom.minidom
-
-    xml = xml.dom.minidom.parseString(et.tostring(element, encoding='utf8', method='xml')) # or xml.dom.minidom.parseString(xml_string)
-    print( xml.toprettyxml(), **kwargs )
-
-
 ###
 #
 # Type of first item in gap tuple determines the gap type. gap might be changed
@@ -21,6 +14,10 @@ def xml_print(element, **kwargs):
 # ['text', ('gap_solution', points), ('gap_solution', points), 'text', ...]
 #
 ###
+
+TEXT_GAP = set
+NUMERIC_GAP = tuple
+SELECT_GAP = list
 
 class GapQuestion:
     """docstring for GapQuestion"""
@@ -67,11 +64,11 @@ class GapQuestion:
             if type(item) == str:
                 f = material(item)
             if type(item) == tuple:
-                if type(item[0]) == list:
+                if type(item[0]) == SELECT_GAP:
                     f = response_choice("gap_{}".format(gap_ident), item[0])
-                if type(item[0]) == str:
+                if type(item[0]) == TEXT_GAP:
                     f = response_str("gap_{}".format(gap_ident), self.gap_length)
-                if type(item[0]) == tuple:
+                if type(item[0]) == NUMERIC_GAP:
                     f = response_num("gap_{}".format(gap_ident), self.gap_length, item[0][1], item[0][2])
                 gap_ident += 1
             flow.append(f)
@@ -85,12 +82,13 @@ class GapQuestion:
         root.append(outcomes)
         is_gap = lambda t: type(t) == tuple
         for i, (answer, points) in enumerate(filter(is_gap, self.gap_list)):
-            if type(answer) == list:
-                for j, (choice, points) in enumerate(answer): # verschattung
+            if type(answer) == SELECT_GAP:
+                for j, (choice, points) in enumerate(answer): # answer is hidden
                     root.append(respcondition_gap(points, i, choice, j))
-            if type(answer) == str:
-                root.append(respcondition_gap(points, i, answer))
-            if type(answer) == tuple:
+            if type(answer) == TEXT_GAP:
+                for j, choice in enumerate(answer):
+                    root.append(respcondition_gap(points, i, choice, j))
+            if type(answer) == NUMERIC_GAP:
                 root.append(respcondition_gap(points, i, answer[0]))
         return root
 

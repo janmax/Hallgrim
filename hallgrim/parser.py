@@ -50,7 +50,7 @@ def gap_parser(task):
 
         if '[/gap]' in m.groups():
             match = m.group(10)
-            gaps.append((match, m.group(8)))
+            gaps.append((set(m.strip() for m in match.split(',')), m.group(8)))
 
         if '[/numeric]' in m.groups():
             match = m.group(4)

@@ -28,7 +28,7 @@ from .parser import choice_parser, gap_parser, order_parser
 from .uploader import send_script
 from .templates import scaffolding
 
-# __all__ = ['parseme']
+__all__ = ['parseme']
 
 # set markdown
 markdown = get_markdown()
@@ -261,6 +261,17 @@ def handle_choice_questions(script, spec, instances):
 
 
 def handle_order_questions(script, spec, instances):
+    """ a generator for order questions
+
+    Currently handles only vertical ordering questions. The order field of
+    the script is fed to the parser, which just retuns a splited list of
+    the string. ('--' is split character).
+
+    Arguments:
+        script {module} -- the loaded module
+        spec {object} -- the specification of the module
+        instances {int} -- number of instances that should be generated
+    """
     script_is_valid(script, required=['meta', 'task', 'order', 'feedback'])
     for _ in range(instances):
         spec.loader.exec_module(script) # reload the script to get new instance

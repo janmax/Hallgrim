@@ -94,8 +94,6 @@ def itemfeedback(ident, content='NONE'):
     return root
 
 ### gap specific #########################################################
-
-
 def respcondition_gap(points, resp_count, answer, count=0):
     root = et.Element('respcondition', attrib={'continue': 'Yes'})
     conditionvar = et.Element('conditionvar')
