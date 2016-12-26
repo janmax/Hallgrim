@@ -16,7 +16,7 @@ def choice_parser(raw_choices, points):
         lines = raw_choices.strip().split('\n')
     elif type(raw_choices) is list:
         lines = raw_choices
-    regex = re.compile('\[(([0-9]*[.])?[0-9]+|X| )\]\s+([\w\W]+)', re.MULTILINE)
+    regex = re.compile('\s*\[(([0-9]*[.])?[0-9]+|X| )\]\s+([\w\W]+)', re.MULTILINE)
     parse = [re.match(regex, line).groups() for line in lines]
     final = [(
         markdown(text),

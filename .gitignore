@@ -12,3 +12,6 @@ README.html
 .DS_Store
 *.sublime-workspace
 config.ini
+
+# Sphinx documentation
+docs/_build/

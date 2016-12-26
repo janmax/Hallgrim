@@ -28,7 +28,7 @@ from .parser import choice_parser, gap_parser
 from .uploader import send_script
 from .templates import scaffolding
 
-__all__ = ['parseme']
+# __all__ = ['parseme']
 
 # set markdown
 markdown = get_markdown()
@@ -161,13 +161,16 @@ def parseme():
 def delegator(output, script_list, parametrized):
     """
     It gets a list of filenames and delegates them to the correct handler.
-    Every file that does not end with .py will be ignored. Each script
+    Every file that does not end with ``.py`` will be ignored. Each script
     is imported and then passed as module to the handler.
 
     Arguments:
-        output {filename}  -- where to write the finished XML document
-        script_list {list} -- a list of filenames that contain scripts
-        parametrized {boolean}  -- output all instances (no test mode)
+        :param output: where to write the finished XML document
+        :param script_list: a list of filenames that contain scripts
+        :param parametrized: output all instances (no test mode)
+        :type output: string
+        :type script_list: list
+        :type parametrized: boolean
     """
     for script_name in filter(lambda a: a.endswith('.py'), script_list):
         script, spec = load_script(script_name)
@@ -183,7 +186,7 @@ def delegator(output, script_list, parametrized):
         if not output:
             output = os.path.join('output', script.meta['title']) + '.xml'
 
-        if script.meta['instances'] and parametrized:
+        if 'instances' in script.meta and parametrized:
             instances = script.meta['instances']
         else:
             instances = 1
