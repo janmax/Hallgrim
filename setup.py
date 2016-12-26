@@ -13,7 +13,7 @@ The final data is produced in three steps:
 
 setup(
     name='hallgrim',
-    version='0.2.3',
+    version='0.3',
     description='A script generator for the ILIAS platform',
     long_description=long_description,
     author='Jan Maximilian Michal',
