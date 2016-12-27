@@ -10,7 +10,7 @@ Hallgrim converts readable scripts into ILIAS XML questions that can be imported
 into question pools. The scripts follow Python syntax and provide a way of
 parametrizing tasks.
 
-.. warning:: Hallgrim is still under active development. Syntax and behaviour are open to change. Please report any errors or issues to the `gitlab repository`_.
+.. note:: Hallgrim is still under active development. Syntax and behaviour are open to change. Please report any errors or issues to the `gitlab repository`_.
 
 Table of Contents
 -----------------
@@ -19,6 +19,7 @@ Table of Contents
    :maxdepth: 3
 
    tasks
+   modules
 
 
 Installation and Configuration

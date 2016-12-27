@@ -164,15 +164,12 @@ def delegator(output, script_list, parametrized):
     """
     It gets a list of filenames and delegates them to the correct handler.
     Every file that does not end with ``.py`` will be ignored. Each script
-    is imported and then passed as module to the handler.
+    is imported and then passed as module to the handler:
 
-    Arguments:
-        :param output: where to write the finished XML document
-        :param script_list: a list of filenames that contain scripts
-        :param parametrized: output all instances (no test mode)
-        :type output: string
-        :type script_list: list
-        :type parametrized: boolean
+    Args:
+        output (str): where to write the finished XML document
+        script_list (list): a list of filenames that contain scripts
+        parametrized (bool): output all instances (no test mode)
     """
     for script_name in filter(lambda a: a.endswith('.py'), script_list):
         script, spec = load_script(script_name)
@@ -213,9 +210,9 @@ def handle_gap_questions(script, spec, instances):
     returns the intermediate representation of the task.
 
     Arguments:
-        script {module} -- the loaded module
-        spec {object}   -- the specification of the module
-        instances {int} -- number of instances that should be generated
+        script (module): the loaded module
+        spec (object):   the specification of the module
+        instances (int): number of instances that should be generated
     """
     script_is_valid(script, required=['meta', 'task', 'feedback'])
     for _ in range(instances):
@@ -240,9 +237,10 @@ def handle_choice_questions(script, spec, instances):
     representation for the task. In this case a list of answers.
 
     Arguments:
-        script {module} -- the loaded module
-        spec {object}   -- the specification of the module
-        instances {int} -- number of instances that should be generated
+        script (module): the loaded module
+        spec (object):   the specification of the module
+        instances (int): number of instances that should be generated
+
     """
     script_is_valid(script, required=['meta', 'task', 'choices', 'feedback'])
     for _ in range(instances):
@@ -265,12 +263,12 @@ def handle_order_questions(script, spec, instances):
 
     Currently handles only vertical ordering questions. The order field of
     the script is fed to the parser, which just retuns a splited list of
-    the string. ('--' is split character).
+    the string where '--' is split character.
 
     Arguments:
-        script {module} -- the loaded module
-        spec {object} -- the specification of the module
-        instances {int} -- number of instances that should be generated
+        script (module): the loaded module
+        spec (object): the specification of the module
+        instances (int): number of instances that should be generated
     """
     script_is_valid(script, required=['meta', 'task', 'order', 'feedback'])
     for _ in range(instances):
@@ -294,10 +292,10 @@ def handle_new_script(name, qtype, author, points):
     it from the config.ini or uses default values.
 
     Arguments:
-        name {str}     -- name of the script, will also become filename
-        qtype {str}    -- question type (choice, gap, alignment)
-        author {str}   -- the author of the script
-        points {float} -- number of points for the task
+        name (str):     name of the script, will also become filename
+        qtype (str):    question type (choice, gap, alignment)
+        author (str):   the author of the script
+        points (float): number of points for the task
     """
     head, tail = os.path.split(name)
     if not os.path.exists(head):
@@ -323,8 +321,8 @@ def handle_upload(script_list, config):
     the status code was bad.
 
     Arguments:
-        script_path {str} -- path to the file that should be uploaded
-        config {config object} -- the loaded configuration
+        script_path (str): path to the file that should be uploaded
+        config (config object): the loaded configuration
     """
     for script in script_list:
         r = send_script(

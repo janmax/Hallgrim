@@ -162,19 +162,41 @@ newlines:
     [select][1] int n_ze = m.length;\n[ ] int n_ze = m[0].length;\n[ ] int n_ze = m.length();\n[ ] int n_ze = m[0].length();\n[/select]
 
 
-Alignment questions
-===================
+Order questions
+===============
 
-Not yet implemented
+Ordering questions follow a very simple syntax and can be written like this
+
+.. code-block:: text
+
+    order = """
+    -- Answer A
+    -- Answer B
+    -- Answer C
+    -- Answer D
+    """
+
+or alternatively like this
+
+.. code-block:: text
+
+    order = "Answer A -- Answer B -- Answer C -- Answer D"
+
+If a question should be ordered horizontally, just put this in the ``meta``
+field (Not implemented).
+
+.. code-block:: python
+
+    'alignment': 'horizontal',
 
 Custom Markdown in Hallgrim
 ***************************
 
-Hallgrim script do not need any HTML formatting. Everything works with Markdown
-thanks to `mistune`_. To find out how markdown in general works take a look
+Hallgrim script do not need any HTML formatting. Thanks to `mistune`_,
+everything works with Markdown. To find out how markdown works take a look
 `here`_.
 
-There are some customizations to the markdown Hallgrim uses listed below.
+There are some customizations to the markdown Hallgrim uses.
 
 LaTeX
 =====
@@ -193,9 +215,10 @@ Syntax highlighting
 ===================
 
 Code highlighting works out-of-the-box with Hallgrim. For syntax highlighting
-the `pygments`_ name of a language (mostly very intuitive) has to be put on the
-first line of the code. By default it is not possible to copy code. It can
-be enabled for each code block by appending ``_copy`` to the language name.
+the `pygments`_ name of a language (often intuitive) has to be put on the first
+line of the code block. By default it is not possible to copy code. It can be
+enabled for each code block individually by appending ``_copy`` to the language
+name.
 
 .. code-block:: text
 
@@ -218,7 +241,6 @@ be enabled for each code block by appending ``_copy`` to the language name.
             return () -> ();
         }
     }
-
 
 
 How to parametrize questions
