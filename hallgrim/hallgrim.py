@@ -1,4 +1,4 @@
-##########################################################################
+################################################################################
 #
 # This script contains the main part of hallgrim and is the only script that
 # needs to be invoked. The steps it takes to generate a task are as follows:
@@ -13,7 +13,7 @@
 # * a finisher compresses data if needed (needs to be implemented, maybe as
 #   separate subparser).
 #
-##########################################################################
+################################################################################
 
 import importlib.util
 import argparse
@@ -350,12 +350,17 @@ def handle_upload(script_list):
     for script in script_list:
         if not script.endswith('.zip') and not script.endswith('.xml'):
             warn("Uploaded file is neither .xml nor .zip.")
-        r = send_script(
-            script,
-            config['UPLAODER']['host'],
-            config['UPLAODER']['user'],
-            config['UPLAODER']['pass'],
-            config['UPLAODER']['rtoken'],
-        )
+        try:
+            r = send_script(
+                script,
+                config['UPLAODER']['host'],
+                config['UPLAODER']['user'],
+                config['UPLAODER']['pass'],
+                config['UPLAODER']['rtoken'],
+            )
+        except Exception as e:
+            print(e)
+            abort("Something went wrong. Maybe the server is not online?")
+
         info("Uploaded %s. Status code looks %s." %
             (script, "good" if r else "bad"))

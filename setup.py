@@ -2,6 +2,12 @@
 
 from setuptools import setup
 
+import re
+
+with open('hallgrim/__init__.py', 'r') as fd:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
+
 long_description = """
 The final data is produced in three steps:
 
@@ -13,7 +19,7 @@ The final data is produced in three steps:
 
 setup(
     name='hallgrim',
-    version='0.3.1',
+    version=version,
     description='A script generator for the ILIAS platform',
     long_description=long_description,
     author='Jan Maximilian Michal',
