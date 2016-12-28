@@ -25,7 +25,7 @@ setup(
     author='Jan Maximilian Michal',
     author_email='mail-github@jmx.io',
     url='https://gitlab.gwdg.de/j.michal/ilias-generator',
-    download_url = 'https://gitlab.gwdg.de/j.michal/ilias-generator/repository/archive.tar.gz?ref=0.1',
+    download_url = 'https://gitlab.gwdg.de/j.michal/ilias-generator/repository/archive.tar.gz?ref=%s' % version,
     license='MIT',
     scripts=['bin/hallgrim'],
     install_requires=['mistune>=0.7', 'pygments>=2', 'requests>=2.8', 'requests_toolbelt>=0.6'],
