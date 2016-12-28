@@ -15,3 +15,6 @@ def error(msg):
 def abort(msg):
     print('[FATAL]', msg)
     sys.exit('exiting...')
+
+def exit():
+    sys.exit('exiting...')

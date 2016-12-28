@@ -22,32 +22,33 @@ import configparser
 
 # local import
 from .IliasXMLCreator import packer
-from .custom_markdown import get_markdown
-from .messages import warn, info, error, abort
+from .messages import warn, info, error, abort, exit
 from .parser import choice_parser, gap_parser, order_parser
 from .uploader import send_script
-from .templates import scaffolding
+
+from . import templates
+from . import custom_markdown
 
 __all__ = ['parseme']
 
 # set markdown
-markdown = get_markdown()
+markdown = custom_markdown.get_markdown()
 
 def get_config():
     config = configparser.ConfigParser()
     config.read('config.ini')
     if not config.sections():
         warn('Could not find config file.')
-        warn('Please edit config.sample.ini and move it to config.ini')
-        info('Continue with default values. Script might fail.')
-        config['META'] = {'author': '__default__'}
+        answer = input('Do you want me to create a default file? [y/N] ')
+        if answer == 'y':
+            with open('config.ini', 'w') as conf:
+                conf.write(templates.config_sample)
+            info('A sample config was written to config.ini.')
+            info('Please enter your data, before proceeding.')
+            exit()
+        else:
+            warn('No config loaded. Script might fail.')
     return config
-
-
-def look_for_output():
-    if not os.path.exists('output'):
-        info('Created directory "output/"')
-        os.makedirs('output')
 
 
 def type_selector(type):
@@ -84,7 +85,6 @@ def script_is_valid(script, required):
 
 
 def parseme():
-    config = get_config()
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")
 
@@ -98,15 +98,15 @@ def parseme():
     parser_new.add_argument(
         "-t",
         "--type",
-        choices=['multi', 'single', 'gap', 'alignment'],
-        default='multi',
+        choices=['multiple', 'single', 'gap', 'alignment'],
+        default='multiple',
         metavar='TYPE'
     )
     parser_new.add_argument(
         "-a",
         "--author",
         help="Name of the scripts author",
-        default=config['META']['author'],
+        default='<your name>',
         metavar='AUTHOR'
     )
     parser_new.add_argument(
@@ -150,14 +150,14 @@ def parseme():
     args = parser.parse_args()
 
     if args.command == 'gen':
-        look_for_output()
         delegator(args.out, args.input, args.parametrized)
     if args.command == 'upload':
-        handle_upload(args.script_list, config)
+        handle_upload(args.script_list)
     if args.command == 'new':
         handle_new_script(args.name, args.type, args.author, args.points)
     if args.command == None:
         parser.print_help()
+
 
 
 def delegator(output, script_list, parametrized):
@@ -182,6 +182,10 @@ def delegator(output, script_list, parametrized):
             'multiple choice': handle_choice_questions,
             'order': handle_order_questions,
         }[script.meta['type']]
+
+        if not os.path.exists('output'):
+            info('Created directory "output/"')
+            os.makedirs('output')
 
         if not output:
             output = os.path.join('output', script.meta['title']) + '.xml'
@@ -292,28 +296,43 @@ def handle_new_script(name, qtype, author, points):
     it from the config.ini or uses default values.
 
     Arguments:
-        name (str):     name of the script, will also become filename
+        name (str):     name of the script, will also become file name
         qtype (str):    question type (choice, gap, alignment)
         author (str):   the author of the script
         points (float): number of points for the task
     """
+    config = get_config()
+    if author == '<your name>' and config.sections():
+        author = config['META']['author']
+
+    # create necessary directories
     head, tail = os.path.split(name)
-    if not os.path.exists(head):
+    if not os.path.exists(head) and head:
         os.makedirs(head)
     if not tail.endswith('.py'):
         base = tail
     else:
         base = tail.rstrip('.py')
-    with open(os.path.join(head, base + '.py'), 'x') as new_script:
-        choice = ''
-        if qtype in ['multiple choice', 'single choice']:
-            choice = '\nchoices = """\n[X] A\n[ ] B\n[ ] C\n[X] D\n"""\n'
 
-        print(scaffolding.format(author, base, qtype, points, choice).strip(), file=new_script)
-        info('Generated new script "%s."' % new_script.name)
+    script_filename = os.path.join(head, base + '.py')
+    if os.path.exists(script_filename):
+        answer = input('Script already exists. Do you want to override? [y/N] ')
+        if answer != 'y':
+            exit()
+
+    if qtype == 'multiple' or qtype == 'single':
+        scaffolding = templates.choice.format(author, base, qtype, points)
+    elif qtype == 'order':
+        scaffolding = templates.order.format(author, base, points)
+    elif qtype == 'gap':
+        scaffolding = templates.gap.format(author, base)
+
+    with open(script_filename, 'w') as new_script:
+        new_script.write(scaffolding)
+        info('Wrote new script to "%s."' % new_script.name)
 
 
-def handle_upload(script_list, config):
+def handle_upload(script_list):
     """ Passes data to the upload script.
 
     The status code should be 500, since ILIAS always replies with that error
@@ -321,10 +340,16 @@ def handle_upload(script_list, config):
     the status code was bad.
 
     Arguments:
-        script_path (str): path to the file that should be uploaded
-        config (config object): the loaded configuration
+        script_list (list): list of paths to the files that should be uploaded
     """
+    config = get_config()
+
+    if 'UPLAODER' not in config.sections():
+        abort("No server data found in config or config does not exist.")
+
     for script in script_list:
+        if not script.endswith('.zip') and not script.endswith('.xml'):
+            warn("Uploaded file is neither .xml nor .zip.")
         r = send_script(
             script,
             config['UPLAODER']['host'],

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Test
+  SYSTEM 'http://www.ilias.uni-koeln.de/download/dtd/ilias_co.dtd'>
+<!--Export of ILIAS Test Questionpool 263 of installation .-->
+<ContentObject Type="Questionpool_Test">
+    <MetaData>
+        <General Structure="Hierarchical">
+            <Identifier Catalog="ILIAS" Entry="il_0_qpl_263"/>
+            <Title Language="en">Testkasten</Title>
+            <Language Language="en"/>
+            <Description Language="en"/>
+            <Keyword Language="en"/>
+        </General>
+    </MetaData>
+    <Settings>
+        <ShowTaxonomies>0</ShowTaxonomies>
+        <NavTaxonomy>0</NavTaxonomy>
+        <SkillService>0</SkillService>
+    </Settings>
+    <PageObject>
+        <PageContent>
+            <Question QRef="il_0_qst_437"/>
+        </PageContent>
+    </PageObject>
+</ContentObject>

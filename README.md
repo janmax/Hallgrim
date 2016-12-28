@@ -3,9 +3,7 @@
 ### Installation
 
 ```
-git clone https://gitlab.gwdg.de/j.michal/ilias-generator.git
-cd ilias-generator
-pip install -e .
+pip install hallgrim
 ```
 
 ### Usage
