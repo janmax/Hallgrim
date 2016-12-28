@@ -17,6 +17,7 @@
 
 import importlib.util
 import argparse
+import sys
 import os
 import configparser
 
@@ -37,17 +38,10 @@ markdown = custom_markdown.get_markdown()
 def get_config():
     config = configparser.ConfigParser()
     config.read('config.ini')
-    if not config.sections():
-        warn('Could not find config file.')
-        answer = input('Do you want me to create a default file? [y/N] ')
-        if answer == 'y':
-            with open('config.ini', 'w') as conf:
-                conf.write(templates.config_sample)
-            info('A sample config was written to config.ini.')
-            info('Please enter your data, before proceeding.')
-            exit()
-        else:
-            warn('No config loaded. Script might fail.')
+    if not 'META' in config.sections():
+        info('Please initialize the directory for Hallgrim:\n')
+        print('\thallgrim init\n')
+        sys.exit()
     return config
 
 
@@ -88,8 +82,22 @@ def parseme():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")
 
+    subparsers.add_parser(
+        "init", help="Initilizes a directory for the use with hallgrim")
     parser_new = subparsers.add_parser(
         "new", help="The utility the generate new scripts.")
+    parser_gen = subparsers.add_parser(
+        "gen", help="Subcommand to convert from script to xml.")
+    parser_upload = subparsers.add_parser(
+        "upload", help="Subcommand to upload created xml instances.")
+
+    # See if init needs to be invoked
+    args, _ = parser.parse_known_args()
+    if args.command == 'init':
+        handle_init()
+
+    # continue with correct config
+    config = get_config()
     parser_new.add_argument(
         "name",
         help="The name of the new script",
@@ -106,7 +114,7 @@ def parseme():
         "-a",
         "--author",
         help="Name of the scripts author",
-        default='<your name>',
+        default=config['META']['author'],
         metavar='AUTHOR'
     )
     parser_new.add_argument(
@@ -118,13 +126,12 @@ def parseme():
         metavar='POINTS',
     )
 
-    parser_gen = subparsers.add_parser(
-        "gen", help="Subcommand to convert from script to xml.")
+    # generator arguments
     parser_gen.add_argument(
         '-o',
         '--out',
-        help='''Specify different output file. If no argument is given the Name
-        of the script is used.''',
+        help='''Specify different output dir.''',
+        default=config['META']['output'],
         metavar='FILE')
     parser_gen.add_argument(
         'input',
@@ -138,9 +145,8 @@ def parseme():
         help='Print the number of parametrized instances specified in question.',
         action='store_true')
 
-    parser_gen = subparsers.add_parser(
-        "upload", help="Subcommand to upload created xml instances.")
-    parser_gen.add_argument(
+    # uploader arguments
+    parser_upload.add_argument(
         'script_list',
         help='The scripts that should be uploaded',
         nargs='+',
@@ -152,7 +158,7 @@ def parseme():
     if args.command == 'gen':
         delegator(args.out, args.input, args.parametrized)
     if args.command == 'upload':
-        handle_upload(args.script_list)
+        handle_upload(args.script_list, config)
     if args.command == 'new':
         handle_new_script(args.name, args.type, args.author, args.points)
     if args.command == None:
@@ -183,13 +189,6 @@ def delegator(output, script_list, parametrized):
             'order': handle_order_questions,
         }[script.meta['type']]
 
-        if not os.path.exists('output'):
-            info('Created directory "output/"')
-            os.makedirs('output')
-
-        if not output:
-            output = os.path.join('output', script.meta['title']) + '.xml'
-
         if 'instances' in script.meta and parametrized:
             instances = script.meta['instances']
         else:
@@ -200,10 +199,66 @@ def delegator(output, script_list, parametrized):
             type_selector(script.meta['type'])
         )
 
-        packer.print_xml(final, output)
+        script_output = os.path.join(output, script.meta['title'] + '.xml')
+        packer.print_xml(final, script_output)
         info('Processed "{}" and'.format(script.__name__))
-        info('wrote xml "{}"'.format(output), notag=True)
+        info('wrote xml "{}"'.format(script_output), notag=True)
 
+def ask(question, default=""):
+    """A Simple interface for asking questions to user
+
+    Three options are given:
+        * question and no default -> This is plain input
+        * question and a default value -> with no user input dafault is returned
+        * question and 'yes'/'no' default -> a corresponding bool is returned
+
+    Arguments:
+        question (str): the question for the user
+
+    Keyword Arguments:
+        default (str) -- a default value (default: {""})
+
+    Returns:
+        str or bool -- if default is yes or no a boolean is return where yes is True and no is False
+    """
+    if default == 'yes':
+        appendix = " [Y/n] "
+    elif default == 'no':
+        appendix = " [y/N] "
+    elif default:
+        appendix = " [{}] ".format(default)
+    else:
+        appendix = " "
+
+    try:
+        answer = input(question + appendix)
+    except EOFError as eof:
+        info("Stdin was closed.")
+        exit()
+
+    if not answer:
+        answer = default
+
+    if answer.lower() in ['yes', 'no', 'y', 'n']:
+        return 'y' in answer.lower()
+    return answer
+
+def handle_init():
+    author = ask("What is your name?", "John Doe")
+    output = ask("Where should I put the converted scripts?", "output")
+
+    if not os.path.exists(output):
+        os.makedirs(output)
+
+    if os.path.exists("config.ini"):
+        override_config = ask("config.ini exists. Want to override?", "no")
+
+    if not os.path.exists("config.ini") or override_config:
+        with open('config.ini', 'w') as conf:
+            conf.write(templates.config_sample.format(author, output))
+    print()
+    print("Thanks! Hallgrim is now ready to parse your scripts.")
+    sys.exit()
 
 def handle_gap_questions(script, spec, instances):
     """ a generator for all kinds of gap questions
@@ -301,10 +356,6 @@ def handle_new_script(name, qtype, author, points):
         author (str):   the author of the script
         points (float): number of points for the task
     """
-    config = get_config()
-    if author == '<your name>' and config.sections():
-        author = config['META']['author']
-
     # create necessary directories
     head, tail = os.path.split(name)
     if not os.path.exists(head) and head:
@@ -332,7 +383,7 @@ def handle_new_script(name, qtype, author, points):
         info('Wrote new script to "%s."' % new_script.name)
 
 
-def handle_upload(script_list):
+def handle_upload(script_list, config):
     """ Passes data to the upload script.
 
     The status code should be 500, since ILIAS always replies with that error
@@ -342,8 +393,6 @@ def handle_upload(script_list):
     Arguments:
         script_list (list): list of paths to the files that should be uploaded
     """
-    config = get_config()
-
     if 'UPLAODER' not in config.sections():
         abort("No server data found in config or config does not exist.")
 

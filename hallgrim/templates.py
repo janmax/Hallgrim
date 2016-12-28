@@ -54,7 +54,8 @@ feedback = """ feedback """
 '''
 
 config_sample = """[META]
-author = <your name>
+author = {}
+output = {}
 
 [UPLAODER]
 user = root
