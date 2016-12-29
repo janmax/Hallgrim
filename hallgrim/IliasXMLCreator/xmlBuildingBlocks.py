@@ -9,13 +9,13 @@ import xml.etree.ElementTree as et
 ##########################################################################
 
 
-def xml_print(element, **kwargs):
-    import xml.dom.minidom
+# def xml_print(element, **kwargs):
+#     import xml.dom.minidom
 
-    # or xml.dom.minidom.parseString(xml_string)
-    xml = xml.dom.minidom.parseString(
-        et.tostring(element, encoding='utf8', method='xml'))
-    print(xml.toprettyxml(), **kwargs)
+#     # or xml.dom.minidom.parseString(xml_string)
+#     xml = xml.dom.minidom.parseString(
+#         et.tostring(element, encoding='utf8', method='xml'))
+#     print(xml.toprettyxml(), **kwargs)
 
 
 def simple_element(name, text=None, attrib={}):

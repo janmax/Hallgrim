@@ -17,7 +17,6 @@
 
 import importlib.util
 import argparse
-import sys
 import os
 import configparser
 
@@ -39,9 +38,9 @@ def get_config():
     config = configparser.ConfigParser()
     config.read('config.ini')
     if not 'META' in config.sections():
-        info('Please initialize the directory for Hallgrim:\n')
-        print('\thallgrim init\n')
-        sys.exit()
+        config['META'] = {}
+        config['META']['author'] = '<your name>'
+        config['META']['output'] = '.'
     return config
 
 
@@ -90,11 +89,6 @@ def parseme():
         "gen", help="Subcommand to convert from script to xml.")
     parser_upload = subparsers.add_parser(
         "upload", help="Subcommand to upload created xml instances.")
-
-    # See if init needs to be invoked
-    args, _ = parser.parse_known_args()
-    if args.command == 'init':
-        handle_init()
 
     # continue with correct config
     config = get_config()
@@ -154,14 +148,15 @@ def parseme():
         metavar='FILE')
 
     args = parser.parse_args()
-
-    if args.command == 'gen':
+    if args.command == 'init':
+        handle_init()
+    elif args.command == 'gen':
         delegator(args.out, args.input, args.parametrized)
-    if args.command == 'upload':
+    elif args.command == 'upload':
         handle_upload(args.script_list, config)
-    if args.command == 'new':
+    elif args.command == 'new':
         handle_new_script(args.name, args.type, args.author, args.points)
-    if args.command == None:
+    else:
         parser.print_help()
 
 
@@ -201,8 +196,8 @@ def delegator(output, script_list, parametrized):
 
         script_output = os.path.join(output, script.meta['title'] + '.xml')
         packer.print_xml(final, script_output)
-        info('Processed "{}" and'.format(script.__name__))
-        info('wrote xml "{}"'.format(script_output), notag=True)
+        info('Processed "{}"'.format(script.__name__))
+        info('Wrote xml "{}"'.format(script_output.lstrip('./')), notag=True)
 
 def ask(question, default=""):
     """A Simple interface for asking questions to user
@@ -258,7 +253,6 @@ def handle_init():
             conf.write(templates.config_sample.format(author, output))
     print()
     print("Thanks! Hallgrim is now ready to parse your scripts.")
-    sys.exit()
 
 def handle_gap_questions(script, spec, instances):
     """ a generator for all kinds of gap questions
@@ -394,7 +388,7 @@ def handle_upload(script_list, config):
         script_list (list): list of paths to the files that should be uploaded
     """
     if 'UPLAODER' not in config.sections():
-        abort("No server data found in config or config does not exist.")
+        abort("No server data found in config.ini or the file does not exist.")
 
     for script in script_list:
         if not script.endswith('.zip') and not script.endswith('.xml'):

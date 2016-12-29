@@ -67,7 +67,6 @@ class OrderQuestion:
         outcomes = et.Element('outcomes')
         outcomes.append(simple_element('decvar'))
         root.append(outcomes)
-        print(*self.order)
         for i, _ in enumerate(self.order):
             root.append(respcondition_order(i, self.points / len(self.order)))
         return root

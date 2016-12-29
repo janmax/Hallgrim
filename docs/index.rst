@@ -31,20 +31,42 @@ To install Hallgrim just use pip (**Note:** Hallgrim *does not* work with Python
 
     pip install hallgrim
 
-You should get the help section if you invoke ``hallgrim without arguments``:
+You should get the help section if you invoke ``hallgrim`` without arguments:
 
 .. code-block:: text
 
-    usage: hallgrim [-h] {new,gen,upload} ...
+    usage: hallgrim [-h] {init,new,gen,upload} ...
 
     positional arguments:
-      {new,gen,upload}
-        new             The utility the generate new scripts.
-        gen             Subcommand to convert from script to xml.
-        upload          Subcommand to upload created xml instances.
+      {init,new,gen,upload}
+        init                Initilizes a directory for the use with hallgrim
+        new                 The utility the generate new scripts.
+        gen                 Subcommand to convert from script to xml.
+        upload              Subcommand to upload created xml instances.
 
     optional arguments:
-      -h, --help        show this help message and exit
+      -h, --help            show this help message and exit
+
+Choose a directory where you want to put your new scripts:
+
+.. code-block:: bash
+
+    mkdir ilias-scripts
+    cd ilias-scripts
+
+You can initilize a repository and create some necessary files:
+
+.. code-block:: bash
+
+    hallgrim init
+
+That's it! Go use ``hallgrim new`` to create your first script.
+
+See :ref:`How to implement different question types` for instructions on the
+scripts. You might want to track your script files with Git.
+
+``config.ini``
+^^^^^^^^^^^^^^
 
 To use Hallgrim with you own scripts a ``config.ini`` has to be in the directory
 where you intend to use hallgrim. If not it will assume ugly default values or
@@ -54,7 +76,7 @@ just fail to execute. Your ``config.ini`` should have the following syntax:
 
     [META]
     author = <your name>
-
+    output = <where to scripts go>
 
     [UPLAODER]
     user = root
@@ -65,7 +87,5 @@ just fail to execute. Your ``config.ini`` should have the following syntax:
 If you use your own ILIAS installation for testing purposes you need to update
 these default values. If not you can ignore or delete them. Though the uploader
 will fail, if it can not find anything here.
-
-That's it! Go use ``hallgrim new`` to create your first script.
 
 .. _gitlab repository: https://gitlab.gwdg.de/j.michal/ilias-generator

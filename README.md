@@ -15,9 +15,9 @@ Example scripts can be found [in a seperate repository](https://gitlab.gwdg.de/j
 
 ### TODO
 
-* add more description / documentation.
 * add more functionality (free, file upload)
 * create whole test objects with questions for direct import.
+* refactor code so questions types behave as plugins
 * add zip support
 * add unittests
 
