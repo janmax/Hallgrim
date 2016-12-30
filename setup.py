@@ -28,7 +28,7 @@ setup(
     download_url = 'https://gitlab.gwdg.de/j.michal/ilias-generator/repository/archive.tar.gz?ref=%s' % version,
     license='MIT',
     scripts=['bin/hallgrim'],
-    install_requires=['mistune>=0.7', 'pygments>=2', 'requests>=2.8', 'requests_toolbelt>=0.6'],
+    install_requires=['mistune>=0.7', 'pygments>=2', 'requests>=2.8'],
     packages=[
         'hallgrim',
         'hallgrim.IliasXMLCreator'
