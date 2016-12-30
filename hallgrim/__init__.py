@@ -1,6 +1,6 @@
 
 __title__ = 'hallgrim'
-__version__ = '0.3.6'
+__version__ = '0.3.7'
 __author__ = 'Jan Maximilian Michal'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2016 Jan Maximilian Michal'

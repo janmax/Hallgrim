@@ -18,7 +18,7 @@
 import os
 
 import requests
-from requests_toolbelt import MultipartEncoder
+from .MultipartEncoder import MultipartEncoder
 
 __all__ = ['send_script']
 
