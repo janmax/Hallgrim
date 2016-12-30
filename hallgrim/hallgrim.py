@@ -20,12 +20,13 @@ import argparse
 import os
 import configparser
 
-# local import
-from .IliasXMLCreator import packer
+# import messaging system
 from .messages import warn, info, error, abort, exit
-from .parser import choice_parser, gap_parser, order_parser
-from .uploader import send_script
 
+# local import
+from . import parser
+from . import uploader
+from . import IliasXMLCreator
 from . import templates
 from . import custom_markdown
 
@@ -39,7 +40,9 @@ def get_config():
     config.read('config.ini')
     if not 'META' in config.sections():
         config['META'] = {}
+    if not 'author' in config['META']:
         config['META']['author'] = '<your name>'
+    if not 'output' in config['META']:
         config['META']['output'] = '.'
     return config
 
@@ -62,19 +65,46 @@ def file_exists(path):
     return path
 
 
-def load_script(script_name):
-    module_name = os.path.basename(script_name)
-    spec = importlib.util.spec_from_file_location(module_name, script_name)
-    script = importlib.util.module_from_spec(spec)
-    return script, spec
+def valid_scripts(script_list):
+    """ Loads a script and tests if it is valid.
 
+    This method does the following:
+        1. Loads the script
+        2. Tests if it is a python file
+        3. Tests it is executable and gives an error description if not
+        4. Tests if mandatory fields are present
+        5. yields the loaded script and spec back if everything worked fine
 
-def script_is_valid(script, required):
-    for field in required:
-        if not hasattr(script, field):
-            error("script does not export '{}' field.".format(field))
-    if any(not hasattr(script, field) for field in required):
-        abort("Script is invalid (see above)")
+    Arguments:
+        script_list (list): a list of script names.
+
+    Yields:
+        (module): the loaded and executed object
+        (spec object): an object that contains info about the surroundings
+    """
+    for script_name in script_list:
+        try:
+            module_name = os.path.basename(script_name)
+            spec = importlib.util.spec_from_file_location(module_name, script_name)
+            assert spec is not None, \
+                "%s is not a python file." % script_name
+            script = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(script)
+            assert all(hasattr(script, field) for field in ['meta', 'feedback', 'task']), \
+                "%s is not a vaild script. A field is missing." % script_name
+            assert all(key in script.meta for key in ('author', 'title', 'type')), \
+                "'meta' field of %s is incomplete." % script_name
+            if 'order' in script.meta['type']:
+                assert hasattr(script, "order"), "%s needs an 'order' field." % script_name
+            if 'multi' in script.meta['type'] or 'single' in script.meta['type']:
+                assert hasattr(script, "choices"), "%s needs a 'choices' field." % script_name
+        except AssertionError as e:
+            error(str(e) + " Skipping.")
+        except Exception as e:
+            error("%s failed due to %s. Ekki gott, check again. Skipping." \
+                % (script_name, e))
+        else:
+            yield script, spec
 
 
 def parseme():
@@ -172,9 +202,7 @@ def delegator(output, script_list, parametrized):
         script_list (list): a list of filenames that contain scripts
         parametrized (bool): output all instances (no test mode)
     """
-    for script_name in filter(lambda a: a.endswith('.py'), script_list):
-        script, spec = load_script(script_name)
-        spec.loader.exec_module(script)
+    for script, spec in valid_scripts(script_list):
         handler = {
             'gap': handle_gap_questions,
             'single': handle_choice_questions,
@@ -189,13 +217,13 @@ def delegator(output, script_list, parametrized):
         else:
             instances = 1
 
-        final = packer.compile(
+        final = IliasXMLCreator.packer.compile(
             handler(script, spec, instances),
             type_selector(script.meta['type'])
         )
 
         script_output = os.path.join(output, script.meta['title'] + '.xml')
-        packer.print_xml(final, script_output)
+        IliasXMLCreator.packer.print_xml(final, script_output)
         info('Processed "{}"'.format(script.__name__))
         info('Wrote xml "{}"'.format(script_output.lstrip('./')), notag=True)
 
@@ -211,7 +239,7 @@ def ask(question, default=""):
         question (str): the question for the user
 
     Keyword Arguments:
-        default (str) -- a default value (default: {""})
+        default (str): a default value (default: {""})
 
     Returns:
         str or bool -- if default is yes or no a boolean is return where yes is True and no is False
@@ -267,13 +295,12 @@ def handle_gap_questions(script, spec, instances):
         spec (object):   the specification of the module
         instances (int): number of instances that should be generated
     """
-    script_is_valid(script, required=['meta', 'task', 'feedback'])
     for _ in range(instances):
         spec.loader.exec_module(script) # reload the script to get new instance
         yield {
             'type': type_selector(script.meta['type']),
             'description': "_description",
-            'gap_list': gap_parser(script.task),
+            'gap_list': parser.gap_parser(script.task),
             'author': script.meta['author'],
             'title': script.meta['title'],
             'shuffle': script.meta['shuffle'] if 'shuffle' in script.meta else True,
@@ -295,7 +322,6 @@ def handle_choice_questions(script, spec, instances):
         instances (int): number of instances that should be generated
 
     """
-    script_is_valid(script, required=['meta', 'task', 'choices', 'feedback'])
     for _ in range(instances):
         spec.loader.exec_module(script) # reload the script to get new instance
         yield {
@@ -306,7 +332,7 @@ def handle_choice_questions(script, spec, instances):
             'title': script.meta['title'],
             'maxattempts': '0',
             'shuffle': script.meta['shuffle'] if 'shuffle' in script.meta else True,
-            'questions': choice_parser(script.choices, script.meta['points']),
+            'questions': parser.choice_parser(script.choices, script.meta['points']),
             'feedback': markdown(script.feedback)
         }
 
@@ -323,7 +349,6 @@ def handle_order_questions(script, spec, instances):
         spec (object): the specification of the module
         instances (int): number of instances that should be generated
     """
-    script_is_valid(script, required=['meta', 'task', 'order', 'feedback'])
     for _ in range(instances):
         spec.loader.exec_module(script) # reload the script to get new instance
         yield {
@@ -332,7 +357,7 @@ def handle_order_questions(script, spec, instances):
             'question_text': markdown(script.task),
             'author': script.meta['author'],
             'title': script.meta['title'],
-            'order': order_parser(script.order),
+            'order': parser.order_parser(script.order),
             'points': script.meta['points'],
             'feedback': markdown(script.feedback),
         }
@@ -394,7 +419,7 @@ def handle_upload(script_list, config):
         if not script.endswith('.zip') and not script.endswith('.xml'):
             warn("Uploaded file is neither .xml nor .zip.")
         try:
-            r = send_script(
+            r = uploader.send_script(
                 script,
                 config['UPLAODER']['host'],
                 config['UPLAODER']['user'],
