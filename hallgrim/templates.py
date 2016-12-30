@@ -60,6 +60,6 @@ output = {}
 [UPLAODER]
 user = root
 pass = homer
-host = http://localhost:8000/
+host = http://localhost:8000/ilias/
 rtoken = c13456ec3d71dc657e19fb826750f676
 """

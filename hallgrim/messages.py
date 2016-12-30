@@ -1,20 +1,20 @@
 import sys
 
-def warn(msg):
-    print('[WARN]', msg)
+def warn(message):
+    print('[WARN]', message)
 
-def debug(msg):
-    print('[DEBUG]', msg)
+def debug(message):
+    print('[DEBUG]', message)
 
-def info(msg, notag=False):
-    print('[INFO]' if not notag else '      ', msg)
+def info(message, notag=False):
+    print('[INFO]' if not notag else '      ', message)
 
-def error(msg):
-    print('[ERROR]', msg)
+def error(message):
+    print('[ERROR]', message)
 
-def abort(msg):
-    print('[FATAL]', msg)
+def abort(message):
+    print('[FATAL]', message)
     sys.exit('exiting...')
 
-def exit():
-    sys.exit('exiting...')
+def exit(message='exiting...'):
+    sys.exit(message)

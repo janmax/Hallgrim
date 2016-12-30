@@ -15,9 +15,6 @@ class OrderQuestion:
         self.points             = points
         self.feedback           = feedback
 
-        self.itemmetadata       = self.itemmetadata(feedback_setting=1)
-        self.presentation       = self.presentation()
-        self.resprocessing      = self.resprocessing()
         self.xml_representation = self.create_item()
 
     def __call__(self):
@@ -82,9 +79,9 @@ class OrderQuestion:
 
         item.append(simple_element('description', text=self.description))
         item.append(simple_element('duration', text='P0Y0M0DT0H30M0S')) # 30 min
-        item.append(self.itemmetadata)
-        item.append(self.presentation)
-        item.append(self.resprocessing)
+        item.append(self.itemmetadata(feedback_setting=1))
+        item.append(self.presentation())
+        item.append(self.resprocessing())
         item.append(itemfeedback('response_allcorrect', self.feedback))
         item.append(itemfeedback('response_onenotcorrect', self.feedback))
         return item

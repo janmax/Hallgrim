@@ -77,12 +77,6 @@ def blue_box(content):
     return box(content, '#9999ff')
 
 
-def markdown(value):
-    renderer = HighlightRenderer()
-    markdown = Markdown(renderer=renderer)
-    return markdown(value)
-
-
 class LaTeXRenderer(Renderer):
 
     def latex(self, formula):

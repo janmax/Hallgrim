@@ -3,8 +3,9 @@ import collections
 
 from .custom_markdown import get_markdown
 
+from typing import List, Tuple
 
-def choice_parser(raw_choices, points):
+def choice_parser(raw_choices: str, points: float) -> List[Tuple[str, bool, float]]:
     """ Parse the multiple choice answers and form an array that has the
     following form: (text, isCorrect, points, solution) and store them in an
     array of arbitrary size
@@ -26,7 +27,7 @@ def choice_parser(raw_choices, points):
     return final
 
 
-def gap_parser(task):
+def gap_parser(task: str) -> collections.deque:
     markdown = get_markdown()
 
     # '\[gap\]([\w\W]+?)\[\/gap\]'
@@ -80,5 +81,5 @@ def gap_parser(task):
 
     return final
 
-def order_parser(order_str):
+def order_parser(order_str: str) -> List[str]:
     return [field.strip() for field in order_str.strip().split('--') if field]

@@ -23,10 +23,10 @@ from .MultipartEncoder import MultipartEncoder
 __all__ = ['send_script']
 
 # static data
-login_url = "ilias/login.php"
-upload_url = "ilias/ilias.php?ref_id=67&cmd=post&cmdClass=ilobjquestionpoolgui&cmdNode=26:gb&baseClass=ilRepositoryGUI&fallbackCmd=upload&rtoken=%s"
-import_url = "ilias/ilias.php?ref_id=67&cmd=post&cmdClass=ilobjquestionpoolgui&cmdNode=26:gb&baseClass=ilRepositoryGUI&fallbackCmd=questions&rtoken=%s"
-confirm_url = "ilias/ilias.php?ref_id=67&cmd=post&cmdClass=ilobjquestionpoolgui&cmdNode=26:gb&baseClass=ilRepositoryGUI&rtoken=%s"
+login_url = "login.php"
+upload_url = "ilias.php?ref_id=67&cmd=post&cmdClass=ilobjquestionpoolgui&cmdNode=26:gb&baseClass=ilRepositoryGUI&fallbackCmd=upload&rtoken=%s"
+import_url = "ilias.php?ref_id=67&cmd=post&cmdClass=ilobjquestionpoolgui&cmdNode=26:gb&baseClass=ilRepositoryGUI&fallbackCmd=questions&rtoken=%s"
+confirm_url = "ilias.php?ref_id=67&cmd=post&cmdClass=ilobjquestionpoolgui&cmdNode=26:gb&baseClass=ilRepositoryGUI&rtoken=%s"
 
 import_data = {
     "cmd[importQuestions]": "Import",
@@ -38,7 +38,11 @@ confirm_data = {
 }
 
 
-def send_script(filepath, host, user, password, rtoken):
+def send_script(filepath: str,
+                host: str,
+                user: str,
+                password: str,
+                rtoken: str) -> bool:
     login = {"username": user, "password": password, "cmd[showLogin]": "Login"}
 
     file = MultipartEncoder(fields={

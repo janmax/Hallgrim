@@ -15,13 +15,14 @@
 #
 ################################################################################
 
-import importlib.util
-import argparse
 import os
-import configparser
+import argparse
+import importlib.util
+from configparser import ConfigParser
+from typing import List, Iterator, Tuple, Any, Dict
 
 # import messaging system
-from .messages import warn, info, error, abort, exit
+from .messages import info, error, abort, exit
 
 # local import
 from . import parser
@@ -35,8 +36,8 @@ __all__ = ['parseme']
 # set markdown
 markdown = custom_markdown.get_markdown()
 
-def get_config():
-    config = configparser.ConfigParser()
+def get_config() -> ConfigParser:
+    config = ConfigParser()
     config.read('config.ini')
     if not 'META' in config.sections():
         config['META'] = {}
@@ -47,7 +48,7 @@ def get_config():
     return config
 
 
-def type_selector(type):
+def type_selector(type: str) -> str:
     if 'multi' in type:
         return 'MULTIPLE CHOICE QUESTION'
     if 'single' in type:
@@ -58,14 +59,14 @@ def type_selector(type):
         return 'ORDERING QUESTION'
 
 
-def file_exists(path):
+def file_exists(path: str) -> str:
     if not os.path.exists(path):
         msg = 'The script "{}" does not exist.'.format(path)
         raise argparse.ArgumentTypeError(msg)
     return path
 
 
-def valid_scripts(script_list):
+def valid_scripts(script_list: List[str]) -> Iterator[Tuple[Any, Any]]:
     """ Loads a script and tests if it is valid.
 
     This method does the following:
@@ -191,7 +192,7 @@ def parseme():
 
 
 
-def delegator(output, script_list, parametrized):
+def delegator(output: str, script_list: List[str], parametrized: bool):
     """
     It gets a list of filenames and delegates them to the correct handler.
     Every file that does not end with ``.py`` will be ignored. Each script
@@ -227,7 +228,7 @@ def delegator(output, script_list, parametrized):
         info('Processed "{}"'.format(script.__name__))
         info('Wrote xml "{}"'.format(script_output.lstrip('./')), notag=True)
 
-def ask(question, default=""):
+def ask(question: str, default: str = "") -> str:
     """A Simple interface for asking questions to user
 
     Three options are given:
@@ -242,7 +243,7 @@ def ask(question, default=""):
         default (str): a default value (default: {""})
 
     Returns:
-        str or bool -- if default is yes or no a boolean is return where yes is True and no is False
+        str -- the user answer of the default (can be empty string)
     """
     if default == 'yes':
         appendix = " [Y/n] "
@@ -256,15 +257,9 @@ def ask(question, default=""):
     try:
         answer = input(question + appendix)
     except EOFError as eof:
-        info("Stdin was closed.")
-        exit()
+        exit("Stdin was closed. Exitting...")
 
-    if not answer:
-        answer = default
-
-    if answer.lower() in ['yes', 'no', 'y', 'n']:
-        return 'y' in answer.lower()
-    return answer
+    return answer if answer else default
 
 def handle_init():
     author = ask("What is your name?", "John Doe")
@@ -276,13 +271,13 @@ def handle_init():
     if os.path.exists("config.ini"):
         override_config = ask("config.ini exists. Want to override?", "no")
 
-    if not os.path.exists("config.ini") or override_config:
+    if not os.path.exists("config.ini") or override_config == 'yes':
         with open('config.ini', 'w') as conf:
             conf.write(templates.config_sample.format(author, output))
     print()
     print("Thanks! Hallgrim is now ready to parse your scripts.")
 
-def handle_gap_questions(script, spec, instances):
+def handle_gap_questions(script, spec, instances: int) -> Iterator[Dict]:
     """ a generator for all kinds of gap questions
 
     A script can contain any mixture of gap, numeric gap and choice gap
@@ -309,7 +304,7 @@ def handle_gap_questions(script, spec, instances):
         }
 
 
-def handle_choice_questions(script, spec, instances):
+def handle_choice_questions(script, spec, instances: int) -> Iterator[Dict]:
     """ a generator for choice questions
 
     Handles multiple and single choice questions. The relevant parts of the
@@ -337,7 +332,7 @@ def handle_choice_questions(script, spec, instances):
         }
 
 
-def handle_order_questions(script, spec, instances):
+def handle_order_questions(script, spec, instances: int) -> Iterator[Dict]:
     """ a generator for order questions
 
     Currently handles only vertical ordering questions. The order field of
@@ -402,7 +397,7 @@ def handle_new_script(name, qtype, author, points):
         info('Wrote new script to "%s."' % new_script.name)
 
 
-def handle_upload(script_list, config):
+def handle_upload(xml_script_list: List[str], config: ConfigParser):
     """ Passes data to the upload script.
 
     The status code should be 500, since ILIAS always replies with that error
@@ -410,15 +405,16 @@ def handle_upload(script_list, config):
     the status code was bad.
 
     Arguments:
-        script_list (list): list of paths to the files that should be uploaded
+        xml_script_list (list): list of paths to the files that should be uploaded
     """
+    from requests.exceptions import ConnectionError
     if 'UPLAODER' not in config.sections():
         abort("No server data found in config.ini or the file does not exist.")
 
-    for script in script_list:
-        if not script.endswith('.zip') and not script.endswith('.xml'):
-            warn("Uploaded file is neither .xml nor .zip.")
+    for script in xml_script_list:
         try:
+            assert script.endswith('.zip') or script.endswith('.xml'), \
+                "Uploaded file is neither .xml nor .zip."
             r = uploader.send_script(
                 script,
                 config['UPLAODER']['host'],
@@ -426,9 +422,10 @@ def handle_upload(script_list, config):
                 config['UPLAODER']['pass'],
                 config['UPLAODER']['rtoken'],
             )
-        except Exception as e:
-            print(e)
-            abort("Something went wrong. Maybe the server is not online?")
-
-        info("Uploaded %s. Status code looks %s." %
-            (script, "good" if r else "bad"))
+        except AssertionError as e:
+            error(e)
+        except ConnectionError as e:
+            abort("Server is not responding. Maybe the image is not running?")
+        else:
+            info("Uploaded %s. Status code looks %s." %
+                (script, "good" if r else "bad"))
