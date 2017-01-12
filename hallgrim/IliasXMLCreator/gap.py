@@ -1,6 +1,8 @@
 import xml.etree.ElementTree as et
 
 from .xmlBuildingBlocks import *
+from .datamodel import IliasQuestion
+
 
 ###
 #
@@ -19,11 +21,14 @@ TEXT_GAP = set
 NUMERIC_GAP = tuple
 SELECT_GAP = list
 
-class GapQuestion:
+class GapQuestion(IliasQuestion):
     """docstring for GapQuestion"""
-    def __init__(self, type, description, gap_list, author, title, shuffle, feedback, gap_length):
-        self.type           = type
-        self.description    = description
+
+    __slots__ = ('gap_list', 'shuffle', 'gap_length',)
+    external_type = 'CLOZE QUESTION'
+    internal_type = 'gap'
+
+    def __init__(self, gap_list, author, title, shuffle, feedback, gap_length):
         self.gap_list       = gap_list
         self.author         = author
         self.title          = title
@@ -31,15 +36,10 @@ class GapQuestion:
         self.feedback       = feedback
         self.gap_length     = gap_length
 
-        self.xml_representation = self.create_item()
-
-    def __call__(self):
-        return self.xml_representation
-
     def itemmetadata(self, feedback_setting=1):
         subroot = et.Element('qtimetadata')
         subroot.append(qtimetadatafield('ILIAS_VERSION', '5.1.8 2016-08-03'))
-        subroot.append(qtimetadatafield('QUESTIONTYPE', self.type))
+        subroot.append(qtimetadatafield('QUESTIONTYPE', self.external_type))
         subroot.append(qtimetadatafield('AUTHOR',  self.author))
         subroot.append(qtimetadatafield('additional_cont_edit_mode', 'default'))
         subroot.append(qtimetadatafield('externalId', '99.99'))
@@ -81,28 +81,38 @@ class GapQuestion:
         for i, (answer, points) in enumerate(filter(is_gap, self.gap_list)):
             if type(answer) == SELECT_GAP:
                 for j, (choice, points) in enumerate(answer): # answer is hidden
-                    root.append(respcondition_gap(points, i, choice, j))
+                    root.append(self.respcondition(points, i, choice, j))
             if type(answer) == TEXT_GAP:
                 for j, choice in enumerate(answer):
-                    root.append(respcondition_gap(points, i, choice, j))
+                    root.append(self.respcondition(points, i, choice, j))
             if type(answer) == NUMERIC_GAP:
-                root.append(respcondition_gap(points, i, answer[0]))
+                root.append(self.respcondition(points, i, answer[0]))
         return root
 
-    ### returns the final object ###############################################
-    def create_item(self):
-        """ This method stacks all the previously created structures together"""
-        item = et.Element('item', attrib={
-            'ident': 'undefined',
-            'title': self.title,
-            'maxattempts': "99"
-        })
+    ############################################################################
+    @staticmethod
+    def respcondition(points, resp_count, answer, count=0):
+        root = et.Element('respcondition', attrib={'continue': 'Yes'})
+        conditionvar = et.Element('conditionvar')
+        varequal = simple_element(
+            'varequal',
+            text=answer,
+            attrib={'respident': 'gap_{}'.format(resp_count)}
+        )
 
-        item.append(simple_element('description', text=self.description))
-        item.append(simple_element('duration', text='P0Y0M0DT0H30M0S')) # 30 min
-        item.append(self.itemmetadata(feedback_setting=1))
-        item.append(self.presentation())
-        item.append(self.resprocessing())
-        item.append(itemfeedback('response_allcorrect', self.feedback))
-        item.append(itemfeedback('response_onenotcorrect', self.feedback))
-        return item
+        conditionvar.append(varequal)
+        setvar = simple_element(
+            'setvar',
+            text=str(points),
+            attrib={'action': 'Add'}
+        )
+
+        displayfeedback = et.Element(
+            'displayfeedback',
+            attrib={'feedbacktype': 'Response',
+                    'linkrefid': '{}_Response_{}'.format(resp_count, count)})
+
+        root.append(conditionvar)
+        root.append(setvar)
+        root.append(displayfeedback)
+        return root

@@ -102,7 +102,7 @@ def valid_scripts(script_list: List[str]) -> Iterator[Tuple[Any, Any]]:
         except AssertionError as e:
             error(str(e) + " Skipping.")
         except Exception as e:
-            error("%s failed due to %s. Ekki gott, check again. Skipping." \
+            error("%s failed due to %s. Not good, check again. Skipping." \
                 % (script_name, e))
         else:
             yield script, spec
@@ -234,7 +234,8 @@ def ask(question: str, default: str = "") -> str:
     Three options are given:
         * question and no default -> This is plain input
         * question and a default value -> with no user input dafault is returned
-        * question and 'yes'/'no' default -> a corresponding bool is returned
+        * question and 'yes'/'no' default -> user can type n, y, yes, no
+            type-insensitive and 'yes' or 'no' is returned in any case
 
     Arguments:
         question (str): the question for the user
@@ -293,8 +294,6 @@ def handle_gap_questions(script, spec, instances: int) -> Iterator[Dict]:
     for _ in range(instances):
         spec.loader.exec_module(script) # reload the script to get new instance
         yield {
-            'type': type_selector(script.meta['type']),
-            'description': "_description",
             'gap_list': parser.gap_parser(script.task),
             'author': script.meta['author'],
             'title': script.meta['title'],
@@ -320,15 +319,13 @@ def handle_choice_questions(script, spec, instances: int) -> Iterator[Dict]:
     for _ in range(instances):
         spec.loader.exec_module(script) # reload the script to get new instance
         yield {
-            'type': type_selector(script.meta['type']),
-            'description': "_description",
             'question_text': markdown(script.task),
             'author': script.meta['author'],
             'title': script.meta['title'],
-            'maxattempts': '0',
             'shuffle': script.meta['shuffle'] if 'shuffle' in script.meta else True,
             'questions': parser.choice_parser(script.choices, script.meta['points']),
-            'feedback': markdown(script.feedback)
+            'feedback': markdown(script.feedback),
+            'single': 'single' in script.meta['type']
         }
 
 
@@ -347,8 +344,6 @@ def handle_order_questions(script, spec, instances: int) -> Iterator[Dict]:
     for _ in range(instances):
         spec.loader.exec_module(script) # reload the script to get new instance
         yield {
-            'type': type_selector(script.meta['type']),
-            'description': "_description",
             'question_text': markdown(script.task),
             'author': script.meta['author'],
             'title': script.meta['title'],

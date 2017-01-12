@@ -11,7 +11,8 @@ pip install hallgrim
 After the install just invoke `hallgrim -h` to see usage. The directory hallgrim
 is invoked in, should contain a `config.ini`.
 
-Example scripts can be found [in a seperate repository](https://gitlab.gwdg.de/j.michal/ilias-scripts).
+Example scripts can be found
+[in a seperate repository](https://gitlab.gwdg.de/j.michal/ilias-scripts).
 
 ### TODO
 
@@ -35,8 +36,8 @@ The final data is produced in three steps:
 ### Testing
 
 The tool will ship with a VirtualBox contaning Ilias Versions used in
-production. With `grim.py upload` it is possible to upload these scripts quickly
-and see a how they look like in a working ilias system.
+production. With `hallgrim upload <xml script>` it is possible to upload these
+scripts quickly and see a how they look like in a working ilias system.
 
 The upload script does not work with the university hosted servers.
 

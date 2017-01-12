@@ -1,13 +1,17 @@
 import xml.etree.ElementTree as et
 
 from .xmlBuildingBlocks import *
+from .datamodel import IliasQuestion
 
 
-class OrderQuestion:
+class OrderQuestion(IliasQuestion):
     """docstring for OrderQuestion"""
-    def __init__(self, type, description, question_text, author, title, order, points, feedback):
-        self.type               = type
-        self.description        = description
+
+    __slots__ = ('question_text', 'points', 'order',)
+    external_type = 'ORDERING QUESTION'
+    internal_type = 'order'
+
+    def __init__(self, question_text, author, title, order, points, feedback):
         self.question_text      = question_text
         self.author             = author
         self.title              = title
@@ -15,18 +19,10 @@ class OrderQuestion:
         self.points             = points
         self.feedback           = feedback
 
-        self.xml_representation = self.create_item()
-
-    def __call__(self):
-        return self.xml_representation
-
-    def is_single(self):
-        return self.type == 'SINGLE CHOICE QUESTION'
-
     def itemmetadata(self, feedback_setting=1):
         subroot = et.Element('qtimetadata')
         subroot.append(qtimetadatafield('ILIAS_VERSION', '5.1.11 2016-10-28'))
-        subroot.append(qtimetadatafield('QUESTIONTYPE', self.type))
+        subroot.append(qtimetadatafield('QUESTIONTYPE', self.external_type))
         subroot.append(qtimetadatafield('AUTHOR', self.author))
         subroot.append(qtimetadatafield('additional_cont_edit_mode', 'default'))
         subroot.append(qtimetadatafield('externalId', '99.99'))
@@ -65,23 +61,33 @@ class OrderQuestion:
         outcomes.append(simple_element('decvar'))
         root.append(outcomes)
         for i, _ in enumerate(self.order):
-            root.append(respcondition_order(i, self.points / len(self.order)))
+            root.append(self.respcondition(i, self.points / len(self.order)))
         return root
 
-    ### returns the final object ###############################################
-    def create_item(self):
-        """ This method stacks all the previously created structures together"""
-        item = et.Element('item', attrib={
-            'ident': 'undefined',
-            'title': self.title,
-            'maxattempts': "0",
-        })
+    ############################################################################
+    @staticmethod
+    def respcondition(index, points):
+        root = et.Element('respcondition', attrib={'continue': 'Yes'})
+        conditionvar = et.Element('conditionvar')
+        varequal = simple_element(
+            'varequal',
+            text=str(index),
+            attrib={'respident': "OQT", 'index': str(index)}
+        )
 
-        item.append(simple_element('description', text=self.description))
-        item.append(simple_element('duration', text='P0Y0M0DT0H30M0S')) # 30 min
-        item.append(self.itemmetadata(feedback_setting=1))
-        item.append(self.presentation())
-        item.append(self.resprocessing())
-        item.append(itemfeedback('response_allcorrect', self.feedback))
-        item.append(itemfeedback('response_onenotcorrect', self.feedback))
-        return item
+        setvar = simple_element(
+            'setvar',
+            text=str(points),
+            attrib={'action': 'Add'}
+        )
+
+        displayfeedback = et.Element(
+            'displayfeedback',
+            attrib={'feedbacktype': 'Response', 'linkrefid': 'link_%d' % index}
+        )
+
+        conditionvar.append(varequal)
+        root.append(conditionvar)
+        root.append(setvar)
+        root.append(displayfeedback)
+        return root
