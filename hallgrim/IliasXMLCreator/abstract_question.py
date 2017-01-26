@@ -2,19 +2,13 @@ import xml.etree.ElementTree as et
 
 from .xmlBuildingBlocks import *
 
-### Will be used later on.
-__all__ = ['registry']
-
-registry = {}
+available_types = {}
 
 def _register_class(target_class):
-    registry[target_class.__name__] = target_class
-
+    available_types[target_class.__dict__['internal_type']] = target_class
 
 class ValidateScriptModule(type):
-
     """docstring for ValidateScriptModule"""
-
     def __new__(meta, name, bases, class_dict):
         cls = type.__new__(meta, name, bases, class_dict)
         if name != 'IliasQuestion':
@@ -26,16 +20,13 @@ class ValidateScriptModule(type):
 
 
 class IliasQuestion(object, metaclass=ValidateScriptModule):
-
     """docstring for IliasQuestion"""
 
     __slots__ = ('author', 'title', 'feedback',)
 
-    def __call__(self):
-        return self.create_item()
-
     ### returns the final object #############################################
-    def create_item(self):
+    @property
+    def xml(self):
         """ This method stacks all the previously created structures together"""
         item = et.Element('item', attrib={
             'ident': 'undefined',

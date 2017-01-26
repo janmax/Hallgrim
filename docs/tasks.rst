@@ -24,13 +24,13 @@ Scripts can be easily generated with default values (or those specified in
 
 .. code-block:: bash
 
-    hallgrim new <script name>
+    hallgrim new <question type> <script name>
 
 The full usage is
 
 .. code-block:: bash
 
-    hallgrim new [-h] [-t TYPE] [-a AUTHOR] [-p POINTS] NAME
+    hallgrim new [-h] [-a AUTHOR] [-p POINTS] TYPE NAME
 
 
 Choice questions
