@@ -31,8 +31,6 @@ from . import IliasXMLCreator
 from . import templates
 from . import custom_markdown
 
-__all__ = ['parseme']
-
 # set markdown
 markdown = custom_markdown.get_markdown()
 
@@ -46,17 +44,6 @@ def get_config() -> ConfigParser:
     if not 'output' in config['META']:
         config['META']['output'] = '.'
     return config
-
-
-def type_selector(type: str) -> str:
-    if 'multi' in type:
-        return 'MULTIPLE CHOICE QUESTION'
-    if 'single' in type:
-        return 'SINGLE CHOICE QUESTION'
-    if 'gap' in type:
-        return 'CLOZE QUESTION'
-    if 'order' in type:
-        return 'ORDERING QUESTION'
 
 
 def file_exists(path: str) -> str:
@@ -92,7 +79,7 @@ def valid_scripts(script_list: List[str]) -> Iterator[Tuple[Any, Any]]:
             script = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(script)
             assert all(hasattr(script, field) for field in ['meta', 'feedback', 'task']), \
-                "%s is not a vaild script. A field is missing." % script_name
+                "%s is not a valid script. A field is missing." % script_name
             assert all(key in script.meta for key in ('author', 'title', 'type')), \
                 "'meta' field of %s is incomplete." % script_name
             if 'order' in script.meta['type']:
@@ -112,10 +99,15 @@ def parseme():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")
 
+    type_choices = [choice.split()[0]
+        for choice in IliasXMLCreator.abstract_question.available_types]
+
     subparsers.add_parser(
-        "init", help="Initilizes a directory for the use with hallgrim")
+        "init", help="Initializes a directory for the use with hallgrim")
     parser_new = subparsers.add_parser(
-        "new", help="The utility the generate new scripts.")
+        "new", help="The utility the generate new scripts.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='available question types:\n\t' + '\n\t'.join(type_choices))
     parser_gen = subparsers.add_parser(
         "gen", help="Subcommand to convert from script to xml.")
     parser_upload = subparsers.add_parser(
@@ -124,16 +116,16 @@ def parseme():
     # continue with correct config
     config = get_config()
     parser_new.add_argument(
+        "type",
+        help='The type of the question',
+        choices=type_choices,
+        default='multiple',
+        metavar='TYPE'
+    )
+    parser_new.add_argument(
         "name",
         help="The name of the new script",
         metavar='NAME'
-    )
-    parser_new.add_argument(
-        "-t",
-        "--type",
-        choices=['multiple', 'single', 'gap', 'alignment'],
-        default='multiple',
-        metavar='TYPE'
     )
     parser_new.add_argument(
         "-a",
@@ -145,7 +137,7 @@ def parseme():
     parser_new.add_argument(
         "-p",
         "--points",
-        help='Points given for correct answer (different behaviour for different questions)',
+        help='Points given for correct answer (different behavior for different questions)',
         type=float,
         default=0.0,
         metavar='POINTS',
@@ -206,9 +198,7 @@ def delegator(output: str, script_list: List[str], parametrized: bool):
     for script, spec in valid_scripts(script_list):
         handler = {
             'gap': handle_gap_questions,
-            'single': handle_choice_questions,
             'single choice': handle_choice_questions,
-            'multi': handle_choice_questions,
             'multiple choice': handle_choice_questions,
             'order': handle_order_questions,
         }[script.meta['type']]
@@ -220,7 +210,7 @@ def delegator(output: str, script_list: List[str], parametrized: bool):
 
         final = IliasXMLCreator.packer.compile(
             handler(script, spec, instances),
-            type_selector(script.meta['type'])
+            script.meta['type']
         )
 
         script_output = os.path.join(output, script.meta['title'] + '.xml')

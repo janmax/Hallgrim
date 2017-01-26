@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as et
 
 from .xmlBuildingBlocks import *
-from .datamodel import IliasQuestion
+from .abstract_question import IliasQuestion
 
 
 ###

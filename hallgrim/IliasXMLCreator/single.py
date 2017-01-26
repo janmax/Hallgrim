@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as et
 
-from .multi import *
-
+from .multi import MultipleChoiceQuestion
+from .xmlBuildingBlocks import *
 
 class SingleChoiceQuestion(MultipleChoiceQuestion):
     """ is just a subclass of multi with the exception of this method.
@@ -9,8 +9,8 @@ class SingleChoiceQuestion(MultipleChoiceQuestion):
     parent since they only concert irrelevant fields. """
 
     __slots__ = ()
-    external_type = 'MULTIPLE CHOICE QUESTION'
-    internal_type = 'multiple choice'
+    external_type = 'SINGLE CHOICE QUESTION'
+    internal_type = 'single choice'
 
     def resprocessing(self):
         root = et.Element('resprocessing')

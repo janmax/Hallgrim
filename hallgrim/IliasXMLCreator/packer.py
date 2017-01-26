@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 
-from . import multi, single, gap, order
+from . import abstract_question
 from .. import messages
 
 __all__ = ['compile', 'print_xml']
@@ -26,15 +26,10 @@ def compile(data_gen, script_type):
     Returns:
         ElementTree -- the final xml tree ready for print
     """
-    if script_type == 'MULTIPLE CHOICE QUESTION':
-        item_list = [multi.MultipleChoiceQuestion(**data)() for data in data_gen]
-    elif script_type == 'SINGLE CHOICE QUESTION':
-        item_list = [single.SingleChoiceQuestion(**data)() for data in data_gen]
-    elif script_type == 'CLOZE QUESTION':
-        item_list = [gap.GapQuestion(**data)() for data in data_gen]
-    elif script_type == 'ORDERING QUESTION':
-        item_list = [order.OrderQuestion(**data)() for data in data_gen]
-    else:
+    try:
+        question_class = abstract_question.available_types[script_type]
+        item_list = [question_class(**data).xml for data in data_gen]
+    except KeyError:
         messages.abort('Question type not found.')
 
     return create_xml_tree(item_list)
