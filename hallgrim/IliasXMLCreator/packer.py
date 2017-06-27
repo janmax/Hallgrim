@@ -27,8 +27,8 @@ def compile(data_gen, script_type):
         ElementTree -- the final xml tree ready for print
     """
     try:
-        question_class = abstract_question.available_types[script_type]
-        item_list = [question_class(**data).xml for data in data_gen]
+        question_class = abstract_question.IliasQuestion.available_types()[script_type]
+        item_list = [question_class(**data).xml() for data in data_gen]
     except KeyError:
         messages.abort('Question type not found.')
 

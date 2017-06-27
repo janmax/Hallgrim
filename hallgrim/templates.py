@@ -13,7 +13,7 @@ task = """ description
 [select]
 [ ] Answer A
 [ ] Answer B
-[X] Answer C
+[4] Answer C
 [/select]
 
 """

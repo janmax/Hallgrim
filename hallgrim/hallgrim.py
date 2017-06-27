@@ -99,8 +99,7 @@ def parseme():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")
 
-    type_choices = [choice.split()[0]
-        for choice in IliasXMLCreator.abstract_question.available_types]
+    type_choices = IliasXMLCreator.abstract_question.IliasQuestion.available_types().keys()
 
     subparsers.add_parser(
         "init", help="Initializes a directory for the use with hallgrim")

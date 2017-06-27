@@ -10,13 +10,15 @@ def choice_parser(raw_choices: str, points: float) -> List[Tuple[str, bool, floa
     following form: (text, isCorrect, points, solution) and store them in an
     array of arbitrary size
 
-    TODO : This is too dense. simplyfy!
+    TODO : This is too dense. simplify!
     """
     markdown = get_markdown()
+
     if type(raw_choices) is str:
         lines = raw_choices.strip().split('\n')
     elif type(raw_choices) is list:
         lines = raw_choices
+
     regex = re.compile('\s*\[(([0-9]*[.])?[0-9]+|X| )\]\s+([\w\W]+)', re.MULTILINE)
     parse = [re.match(regex, line).groups() for line in lines]
     final = [(
@@ -24,6 +26,7 @@ def choice_parser(raw_choices: str, points: float) -> List[Tuple[str, bool, floa
         True if mark != ' ' else False,
         float(mark) if mark not in ' X' else points)
         for mark, _, text in parse]
+
     return final
 
 

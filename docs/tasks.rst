@@ -32,6 +32,9 @@ The full usage is
 
     hallgrim new [-h] [-a AUTHOR] [-p POINTS] TYPE NAME
 
+Currently implemented types are ``gap``, ``order``, ``multiple`` and ``single``.
+Hallgrim will give a list of available types when invoking ``hallgrim new -h``.
+
 
 Choice questions
 ================
@@ -40,7 +43,7 @@ The fields ``task`` and ``feedback`` can have arbitrary content. The number
 of choices is specified in the ``choices`` field, which has to be exported. The
 syntax is very straight forward for both types of question.
 
-The answers are shuffled by ILIAS by default. To disable this behaviour add this
+The answers are shuffled by ILIAS by default. To disable this behavior add this
 to the meta field.
 
 .. code-block:: python

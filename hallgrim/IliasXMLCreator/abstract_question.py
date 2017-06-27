@@ -2,30 +2,43 @@ import xml.etree.ElementTree as et
 
 from .xmlBuildingBlocks import *
 
-available_types = {}
-
-def _register_class(target_class):
-    available_types[target_class.__dict__['internal_type']] = target_class
-
-class ValidateScriptModule(type):
-    """docstring for ValidateScriptModule"""
-    def __new__(meta, name, bases, class_dict):
-        cls = type.__new__(meta, name, bases, class_dict)
-        if name != 'IliasQuestion':
-            if 'internal_type' not in class_dict \
-            or 'external_type' not in class_dict:
-                raise ValueError('Must define internal_type and external_type')
-            _register_class(cls)
-        return cls
+from abc import ABCMeta, abstractmethod, abstractstaticmethod
 
 
-class IliasQuestion(object, metaclass=ValidateScriptModule):
+def all_subclasses(cls):
+    return cls.__subclasses__() \
+        + [g for s in cls.__subclasses__() for g in all_subclasses(s)]
+
+
+class IliasQuestion(metaclass=ABCMeta):
     """docstring for IliasQuestion"""
 
-    __slots__ = ('author', 'title', 'feedback',)
+    @classmethod
+    def available_types(cls):
+        return {sub.internal_type : sub for sub in all_subclasses(cls)}
+
+    def __new__(cls, *args, **kwargs):
+        assert hasattr(cls, 'internal_type'), "internaltype not defined"
+        assert hasattr(cls, 'external_type'), "externaltype not defined"
+        return super().__new__(cls)
+
+    @abstractmethod
+    def itemmetadata(self, feedback_setting):
+        return NotImplemented
+
+    @abstractmethod
+    def presentation(self):
+        return NotImplemented
+
+    @abstractmethod
+    def resprocessing(self):
+        return NotImplemented
+
+    @abstractstaticmethod
+    def respcondition(points, resp_count, answer, count):
+        return NotImplemented
 
     ### returns the final object #############################################
-    @property
     def xml(self):
         """ This method stacks all the previously created structures together"""
         item = et.Element('item', attrib={
@@ -43,3 +56,4 @@ class IliasQuestion(object, metaclass=ValidateScriptModule):
         item.append(itemfeedback('response_allcorrect', self.feedback))
         item.append(itemfeedback('response_onenotcorrect', self.feedback))
         return item
+
