@@ -2,17 +2,21 @@ gap = r'''meta = {{
     'author': '{}',
     'title': '{}',
     'type': 'gap',
+    'shuffle': True,
+    'instances': 1,
+    'gap_length': 20,
 }}
 
 task = """ description
 
 [gap(1.0P)]Answer A, Answer B, Answer C[/gap]
 
-[numeric(1.0P)]<value>,<min>,<max>[/numeric]
+This is a numeric gap and follows the syntax: <value>(,<min>,<max>)
+[numeric(1.0P)]5, 0, 10[/numeric]
 
 [select]
 [ ] Answer A
-[ ] Answer B
+[2] Answer B
 [4] Answer C
 [/select]
 
@@ -25,6 +29,7 @@ order = r'''meta = {{
     'author': '{}',
     'title': '{}',
     'type': 'order',
+    'instances': 1,
     'points': {}, # total number of points
 }}
 
@@ -39,6 +44,8 @@ choice = r'''meta = {{
     'author': '{}',
     'title': '{}',
     'type': '{} choice',
+    'instances': 1,
+    'shuffle': True,
     'points': {}, # points per correct question
 }}
 
