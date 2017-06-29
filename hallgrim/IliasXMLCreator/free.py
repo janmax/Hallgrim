@@ -8,7 +8,7 @@ class OrderQuestion(IliasQuestion):
     """docstring for OrderQuestion"""
 
     __slots__ = ('question_text', 'points', 'order',)
-    external_type = 'ORDERING QUESTION'
+    external_type = 'TEXT QUESTION'
     internal_type = 'order'
 
     def __init__(self, question_text, author, title, order, points, feedback):
@@ -26,9 +26,11 @@ class OrderQuestion(IliasQuestion):
         subroot.append(qtimetadatafield('AUTHOR', self.author))
         subroot.append(qtimetadatafield('additional_cont_edit_mode', 'default'))
         subroot.append(qtimetadatafield('externalId', '99.99'))
-        subroot.append(qtimetadatafield('thumb_geometry', '100'))
-        subroot.append(qtimetadatafield('element_height', '99'))
-        subroot.append(qtimetadatafield('points', str(self.points)))
+        subroot.append(qtimetadatafield('textrating', 'ci'))
+        subroot.append(qtimetadatafield('matchcondition'))
+        subroot.append(qtimetadatafield('termscoring', 'YTowOnt9'))
+        subroot.append(qtimetadatafield('termrelation', 'non'))
+        subroot.append(qtimetadatafield('specificfeedback', 'non'))
         root = et.Element('itemmetadata')
         root.append(subroot)
         return root
@@ -37,57 +39,38 @@ class OrderQuestion(IliasQuestion):
     def presentation(self):
         root = et.Element('presentation', attrib={'label': self.title})
         flow = et.Element('flow')
-        response_lid = et.Element('response_lid', attrib={
-            'ident': 'OQT',
-            'output': 'javascript',
+
+        response_str = et.Element('response_str', attrib={
+            'ident': 'TEXT',
             'rcardinality': 'Ordered',
         })
 
-        render_choice = et.Element(
-            'render_choice', attrib={'shuffle': 'Yes'})
-        for i, answer in enumerate(self.order):
-            render_choice.append(response_label(answer, i))
+        render_fib = et.Element(
+            'render_fib', attrib={'fibtype': 'String', 'prompt': 'Box'})
+
 
         root.append(flow)
         flow.append(material(self.question_text))
-        flow.append(response_lid)
-        response_lid.append(render_choice)
+        flow.append(response_str)
+        response_str.append(render_fib)
+        render_fib.append(simple_element('response_label', attrib={'ident': 'A'}))
         return root
 
     ############################################################################
     def resprocessing(self):
         root = et.Element('resprocessing')
         outcomes = et.Element('outcomes')
-        outcomes.append(simple_element('decvar'))
+        outcomes.append(simple_element('decvar', attrib={
+            'maxvalue': str(self.points),
+            'minvalue': '0',
+            'varname': 'WritingScore',
+            'vartype': 'Integer'
+        }))
         root.append(outcomes)
-        for i, _ in enumerate(self.order):
-            root.append(self.respcondition(i, self.points / len(self.order)))
-        return root
 
-    ############################################################################
-    @staticmethod
-    def respcondition(index, points):
-        root = et.Element('respcondition', attrib={'continue': 'Yes'})
-        conditionvar = et.Element('conditionvar')
-        varequal = simple_element(
-            'varequal',
-            text=str(index),
-            attrib={'respident': "OQT", 'index': str(index)}
-        )
+        respcondition = et.Element('respcondition')
+        conditionvar  = et.Element('conditonvar')
+        conditionvar.append(simple_element('other', 'tutor_rated'))
+        respcondition.append(conditionvar)
 
-        setvar = simple_element(
-            'setvar',
-            text=str(points),
-            attrib={'action': 'Add'}
-        )
-
-        displayfeedback = et.Element(
-            'displayfeedback',
-            attrib={'feedbacktype': 'Response', 'linkrefid': 'link_%d' % index}
-        )
-
-        conditionvar.append(varequal)
-        root.append(conditionvar)
-        root.append(setvar)
-        root.append(displayfeedback)
         return root
