@@ -43,7 +43,7 @@ feedback = """ feedback """
 choice = r'''meta = {{
     'author': '{}',
     'title': '{}',
-    'type': '{} choice',
+    'type': '{}',
     'instances': 1,
     'shuffle': True,
     'points': {}, # points per correct question
@@ -60,6 +60,19 @@ choices = """
 feedback = """ feedback """
 '''
 
+free = r'''meta = {{
+    'author': '{}',
+    'title': '{}',
+    'type': 'free',
+    'instances': 1,
+    'points': {},
+}}
+
+task = """ decription """
+
+feedback = """ feedback """
+'''
+
 config_sample = """[META]
 author = {}
 output = {}
@@ -70,3 +83,5 @@ pass = homer
 host = http://localhost:8000/ilias/
 rtoken = c13456ec3d71dc657e19fb826750f676
 """
+
+

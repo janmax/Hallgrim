@@ -4,18 +4,17 @@ from .xmlBuildingBlocks import *
 from .abstract_question import IliasQuestion
 
 
-class OrderQuestion(IliasQuestion):
-    """docstring for OrderQuestion"""
+class FreeQuestion(IliasQuestion):
+    """docstring for FreeQuestion"""
 
     __slots__ = ('question_text', 'points', 'order',)
     external_type = 'TEXT QUESTION'
-    internal_type = 'order'
+    internal_type = 'free'
 
-    def __init__(self, question_text, author, title, order, points, feedback):
+    def __init__(self, question_text, author, title, points, feedback):
         self.question_text      = question_text
         self.author             = author
         self.title              = title
-        self.order              = order
         self.points             = points
         self.feedback           = feedback
 
@@ -27,7 +26,7 @@ class OrderQuestion(IliasQuestion):
         subroot.append(qtimetadatafield('additional_cont_edit_mode', 'default'))
         subroot.append(qtimetadatafield('externalId', '99.99'))
         subroot.append(qtimetadatafield('textrating', 'ci'))
-        subroot.append(qtimetadatafield('matchcondition'))
+        subroot.append(qtimetadatafield('matchcondition', None))
         subroot.append(qtimetadatafield('termscoring', 'YTowOnt9'))
         subroot.append(qtimetadatafield('termrelation', 'non'))
         subroot.append(qtimetadatafield('specificfeedback', 'non'))

@@ -200,6 +200,7 @@ def delegator(output: str, script_list: List[str], parametrized: bool):
             'single choice': handle_choice_questions,
             'multiple choice': handle_choice_questions,
             'order': handle_order_questions,
+            'free': handle_free_questions,
         }[script.meta['type']]
 
         if 'instances' in script.meta and parametrized:
@@ -247,7 +248,7 @@ def ask(question: str, default: str = "") -> str:
     try:
         answer = input(question + appendix)
     except EOFError as eof:
-        exit("Stdin was closed. Exitting...")
+        exit("Stdin was closed. Exiting...")
 
     return answer if answer else default
 
@@ -322,7 +323,7 @@ def handle_order_questions(script, spec, instances: int) -> Iterator[Dict]:
     """ a generator for order questions
 
     Currently handles only vertical ordering questions. The order field of
-    the script is fed to the parser, which just retuns a splited list of
+    the script is fed to the parser, which just returns a list of
     the string where '--' is split character.
 
     Arguments:
@@ -337,6 +338,28 @@ def handle_order_questions(script, spec, instances: int) -> Iterator[Dict]:
             'author': script.meta['author'],
             'title': script.meta['title'],
             'order': parser.order_parser(script.order),
+            'points': script.meta['points'],
+            'feedback': markdown(script.feedback),
+        }
+
+
+def handle_free_questions(script, spec, instances: int) -> Iterator[Dict]:
+    '''
+    Handles all types of free/essay questions, although currently only the
+    simplest form (human graded) is available. All it gives you is a question
+    text and a html <textarea> where you can put your answer.
+
+    Arguments:
+        script (module): the loaded module
+        spec (object): the specification of the module
+        instances (int): number of instances that should be generated
+    '''
+    for _ in range(instances):
+        spec.loader.exec_module(script) # reload the script to get new instance
+        yield {
+            'question_text': markdown(script.task),
+            'author': script.meta['author'],
+            'title': script.meta['title'],
             'points': script.meta['points'],
             'feedback': markdown(script.feedback),
         }
@@ -369,12 +392,16 @@ def handle_new_script(name, qtype, author, points):
         if answer != 'y':
             exit()
 
-    if qtype == 'multiple' or qtype == 'single':
+    if qtype == 'multiple choice' or qtype == 'single choice':
         scaffolding = templates.choice.format(author, base, qtype, points)
     elif qtype == 'order':
         scaffolding = templates.order.format(author, base, points)
     elif qtype == 'gap':
         scaffolding = templates.gap.format(author, base)
+    elif qtype == 'free':
+        scaffolding = templates.free.format(author, base, points)
+    else:
+        abort('There is no template for this type')
 
     with open(script_filename, 'w') as new_script:
         new_script.write(scaffolding)

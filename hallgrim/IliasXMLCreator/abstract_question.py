@@ -11,8 +11,27 @@ def all_subclasses(cls):
 
 
 class IliasQuestion(metaclass=ABCMeta):
-    """docstring for IliasQuestion"""
+    """ This is the abstract class one has to implement if one wants to
+    offer a question type in hallgrim. All Ilias question roughly follow
+    the same structure. After you successfully implemented the methods below
+    by reverse engineering the XML export of an Ilias question you prepared,
+    perform the following steps:
 
+        1. add the name of the new python module (aka. the file name) in this
+        packages __init__.py to register it with the rest of hallgrim
+
+        2. write a template for this kind of task (preferably in the
+        hallgrim.templates module)
+
+        3. write a parser that provides the intermediate representation
+        your IliasXML converter can live with
+
+        4. add a handler in the hallgrim.hallgrim module that fuses everything
+        together.
+
+    TODO: I honestly do not like this process and the whole project desperately
+    needs refactoring. Also some parts need to be rewritten.
+    """
     @classmethod
     def available_types(cls):
         return {sub.internal_type : sub for sub in all_subclasses(cls)}
@@ -34,10 +53,6 @@ class IliasQuestion(metaclass=ABCMeta):
     def resprocessing(self):
         return NotImplemented
 
-    @abstractstaticmethod
-    def respcondition(points, resp_count, answer, count):
-        return NotImplemented
-
     ### returns the final object #############################################
     def xml(self):
         """ This method stacks all the previously created structures together"""
@@ -48,7 +63,6 @@ class IliasQuestion(metaclass=ABCMeta):
         })
 
         item.append(simple_element('description', text="_description"))
-        # 30 min
         item.append(simple_element('duration', text='P0Y0M0DT0H30M0S'))
         item.append(self.itemmetadata(feedback_setting=1))
         item.append(self.presentation())
