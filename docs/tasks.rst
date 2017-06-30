@@ -192,6 +192,13 @@ field (Not implemented).
 
     'alignment': 'horizontal',
 
+Free Questions
+==============
+
+This is a very simple question type. It only allows to specify a task
+description and some feedback. Ilias will take the answer in an unformatted HTML
+textarea. However, they can be parameterized same as any other task.
+
 Custom Markdown in Hallgrim
 ***************************
 

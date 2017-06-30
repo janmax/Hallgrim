@@ -14,13 +14,12 @@ is invoked in, should contain a `config.ini`.
 Example scripts can be found
 [in a seperate repository](https://gitlab.gwdg.de/j.michal/ilias-scripts).
 
-### TODO
+### Documentation
 
-* add more functionality (free, file upload)
-* create whole test objects with questions for direct import.
-* refactor code so questions types behave as plugins
-* add zip support
-* add unittests
+Please see the documentation. All the functionality is explained there among
+with some code documentation. It was generated with Sphinx. Its output can be found
+[here](http://user.informatik.uni-goettingen.de/~j.michal/hallgrim/index.html).
+
 
 ### Notes
 
@@ -35,13 +34,9 @@ The final data is produced in three steps:
 
 ### Testing
 
-The tool will ship with a VirtualBox contaning Ilias Versions used in
+The tool will ship with a VirtualBox containing Ilias Versions used in
 production. With `hallgrim upload <xml script>` it is possible to upload these
-scripts quickly and see a how they look like in a working ilias system.
+scripts quickly and see a how they look like in a working Ilias system.
 
 The upload script does not work with the university hosted servers.
 
-### Documentation
-
-Hallgrim uses Sphinx. Its output can be found
-[here](http://user.informatik.uni-goettingen.de/~j.michal/hallgrim/index.html).
